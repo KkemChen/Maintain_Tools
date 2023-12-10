@@ -4,8 +4,8 @@
   line-height: 24px;
   font-weight: 400;
 
-  color: #0f0f0f;
-  background-color: #f6f6f6;
+  /* color: #0f0f0f;
+  background-color: #f6f6f6; */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -14,6 +14,11 @@
   -webkit-text-size-adjust: 100%;
 }
 
-/* #app{
+body{
+  margin: 0;
   height: 100vh;
-} */
+}
+
+#app{
+  height: 100%;
+}

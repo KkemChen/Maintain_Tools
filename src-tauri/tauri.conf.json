@@ -35,7 +35,7 @@
     "windows": [
       {
         "fullscreen": false,
-        "resizable": false,
+        "resizable": true,
         "title": "test-app",
         "width": 1000,
         "height": 600
