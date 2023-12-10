@@ -1,3 +1,7 @@
 <template>
-    <h1>主页面</h1>
+    <h1>home</h1>
 </template>
+
+<style scoped>
+
+</style>
