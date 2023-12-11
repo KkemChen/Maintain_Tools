@@ -29,7 +29,7 @@ function initChart() {
     if (myChart === null || myChart === undefined) {
         myChart = echarts.init(document.getElementById(props.id) as HTMLElement);
     }
-    const theme = globalStore.$state.themeConfig.theme || 'light';
+    const theme = 'light';
     let percentText = String(props.option.data).split('.');
     console.log(`data: ${props.option.data}`)
     const option = {
@@ -147,6 +147,7 @@ watch(
             });
         }
     },
+    { deep: true }
 );
 
 onMounted(() => {
