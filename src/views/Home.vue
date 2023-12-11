@@ -1,7 +1,8 @@
 <script setup>
 import CPUInfo from "../components/overview/CPUInfo.vue";
 import DiskInfo from "../components/overview/DiskInfo.vue"
-import Pie from "../components/overview/pie.vue"
+//import Pie from "../components/overview/pie.vue"
+import ProcessInfo from "../components/overview/ProcessInfo.vue"
 </script>
 
 
@@ -34,7 +35,7 @@ import Pie from "../components/overview/pie.vue"
     <el-row :gutter="10">
       <el-col :span="24"><div class="grid-content ep-bg-purple" >
         <el-card class="box-card">
-          <div v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</div>
+          <ProcessInfo />
         </el-card>
       </div></el-col>
     </el-row>
@@ -44,24 +45,28 @@ import Pie from "../components/overview/pie.vue"
 .el-row {
   height: calc((calc(95%) - 15px) /3) ;
   margin-bottom: 5px;
+
 }
 
 .el-col{
   height: 100%;
+
 }
 .grid-content {
   border: none;
   height: 100%;
+
 }
 
 .box-card {
   width: 100%;
   height: 100%;
   background-color: lightgreen;
+
 }
 
 :deep(.el-card__body) {
-  padding: 0 !important;
+  padding: 0px !important;
   height: 100%;
 }
 

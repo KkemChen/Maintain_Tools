@@ -27,11 +27,11 @@ const firstColumnWidth = ref('');  // 存储第一列的宽度
 const secondColumnWidth = ref(''); // 存储第二列的宽度
 
 const updateColumnWidths = () => {
-  const tableElement = document.querySelector('.el-table'); // 替换为您的表格元素选择器
+  const tableElement = document.getElementById('CPU-Info'); // 替换为您的表格元素选择器
   if (tableElement) {
     const tableWidth = tableElement.clientWidth;
-    firstColumnWidth.value = `${tableWidth * 0.3}px`;  // 30% 的宽度
-    secondColumnWidth.value = `${tableWidth * 0.7}px`; // 70% 的宽度
+    firstColumnWidth.value = `${(tableWidth-20) * 0.2}px`;  // 30% 的宽度
+    secondColumnWidth.value = `${(tableWidth-20) * 0.8}px`; // 70% 的宽度
   }
 };
 
@@ -47,8 +47,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <el-table :data="tableData" height="100%" style="width: 100%; font-size: 10px;" label="auto" 
-    :cell-style="{padding:'0px'}" >
+    <el-table :data="tableData" height="100%" style="width: 100%;  font-size: 10px;" label="auto" 
+    :cell-style="{padding:'0px'}"  id="CPU-Info">
       <el-table-column prop="Index" label="CPU"  :width="firstColumnWidth"/>
       <el-table-column label="Useage"  :width="secondColumnWidth">
       <template v-slot="{ row }">
@@ -59,7 +59,9 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-
+.el-table{
+  padding: 0px 10px;
+}
 
 
 </style>
