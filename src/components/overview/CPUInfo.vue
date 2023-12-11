@@ -1,0 +1,69 @@
+
+
+<script lang="ts" setup>
+import { ref,onMounted,onUnmounted  } from 'vue';
+
+interface TableDataItem {
+  Index: string;
+  Useage: Number;
+}
+
+const tableData = ref<TableDataItem[]>([
+  { Index: 'CPU0', Useage: 86 },
+  { Index: 'CPU1', Useage: 36 },
+  { Index: 'CPU2', Useage: 62 },
+  { Index: 'CPU3', Useage: 50 },
+  { Index: 'CPU4', Useage: 32 },
+  { Index: 'CPU5', Useage: 66 }
+]);
+
+const getProgressStatus = (percentage) => {
+  if (percentage <= 50) return 'success';
+  if (percentage > 50 && percentage < 70) return 'warning';
+  return 'exception';
+};
+
+const firstColumnWidth = ref('');  // 存储第一列的宽度
+const secondColumnWidth = ref(''); // 存储第二列的宽度
+
+const updateColumnWidths = () => {
+  const tableElement = document.querySelector('.el-table'); // 替换为您的表格元素选择器
+  if (tableElement) {
+    const tableWidth = tableElement.clientWidth;
+    firstColumnWidth.value = `${tableWidth * 0.3}px`;  // 30% 的宽度
+    secondColumnWidth.value = `${tableWidth * 0.7}px`; // 70% 的宽度
+  }
+};
+
+onMounted(() => {
+  updateColumnWidths();
+  window.addEventListener('resize', updateColumnWidths);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateColumnWidths);
+});
+
+</script>
+
+<template>
+    <el-table :data="tableData" height="100%" style="width: 100%; font-size: 10px;" label="auto" 
+    :cell-style="{padding:'0px'}" >
+      <el-table-column prop="Index" label="CPU"  :width="firstColumnWidth"/>
+      <el-table-column label="Useage"  :width="secondColumnWidth">
+      <template v-slot="{ row }">
+        <el-progress :text-inside="true" :stroke-width="15" :percentage="row.Useage" :status="getProgressStatus(row.Useage)"/>
+      </template>
+    </el-table-column>
+    </el-table>
+</template>
+
+<style scoped>
+
+
+
+</style>
+
+
+
+

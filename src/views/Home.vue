@@ -1,3 +1,9 @@
+<script setup>
+import CPUInfo from "../components/overview/CPUInfo.vue";
+import DiskInfo from "../components/overview/DiskInfo.vue"
+</script>
+
+
 <template>
     <el-row :gutter="10">
       <el-col :span="24"><div class="grid-content ep-bg-purple">
@@ -9,12 +15,13 @@
     <el-row :gutter="5">
       <el-col :span="8" ><div class="grid-content ep-bg-purple" >
         <el-card class="box-card">
-          <div v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</div>
+          <CPUInfo />
+          
         </el-card>
       </div></el-col>
       <el-col :span="8" ><div class="grid-content ep-bg-purple" >
         <el-card class="box-card">
-          <div v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</div>
+          <DiskInfo />
         </el-card>
       </div></el-col>
       <el-col :span="8" ><div class="grid-content ep-bg-purple" >
@@ -34,12 +41,13 @@
   
 <style scoped>
 .el-row {
-  /* margin-bottom: 20px; */
-  min-height: calc((calc(95%) - 15px) /3) ;
+  height: calc((calc(95%) - 15px) /3) ;
   margin-bottom: 5px;
 }
 
-
+.el-col{
+  height: 100%;
+}
 .grid-content {
   border: none;
   height: 100%;
@@ -51,6 +59,10 @@
   background-color: lightgreen;
 }
 
+:deep(.el-card__body) {
+  padding: 0 !important;
+  height: 100%;
+}
 
 </style>
   

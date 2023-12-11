@@ -1,10 +1,9 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import CPUInfo from "./components/CPUInfo.vue";
+
 import Menu from "./components/Menu.vue";
 import Info from "./components/Info.vue"
-import Pie from "./components/Pie.vue"
 </script>
 
 
