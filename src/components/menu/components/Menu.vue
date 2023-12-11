@@ -18,7 +18,5 @@
 .el-menu{
     height: 90%;
 }
-.el-footer {
-  margin-top: auto; /* 将 footer 推到底部 */
-}
+
 </style>
