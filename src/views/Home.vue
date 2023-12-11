@@ -1,6 +1,7 @@
 <script setup>
 import CPUInfo from "../components/overview/CPUInfo.vue";
 import DiskInfo from "../components/overview/DiskInfo.vue"
+import Pie from "../components/overview/pie.vue"
 </script>
 
 
@@ -8,7 +9,7 @@ import DiskInfo from "../components/overview/DiskInfo.vue"
     <el-row :gutter="10">
       <el-col :span="24"><div class="grid-content ep-bg-purple">
         <el-card class="box-card">
-          <div v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</div>
+          <Pie />
         </el-card>
       </div></el-col>
     </el-row>
