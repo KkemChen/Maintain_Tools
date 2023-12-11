@@ -1,72 +1,56 @@
-<script setup>
-// import Card from "../components/Card.vue"
-import {ref } from "vue"
-// const height = "33%";
-const option = ref({
-    data: 65.62,
-    id:"test"
-})
-</script>
-
 <template>
-    <!-- <h1>home</h1> -->
-    
-    <div class="main-container">
-        <el-row :gutter="12" class="main-row">
-            <el-col :span="6" class = "pie-col">
-                <!-- <img src="../assets/hamburger.png"/> -->
-                <Pie id="test" :option="option"/>
-            </el-col>
-            <el-col :span="6" class = "pie-col">
-                <img src="../assets/hamburger.png"/>
-            </el-col>
-            <el-col :span="6" class = "pie-col">
-                <img src="../assets/hamburger.png"/>
-            </el-col>
-            <el-col :span="6" class = "pie-col">
-                <img src="../assets/hamburger.png"/>
-            </el-col>
-        </el-row>
-        <el-row :gutter="12" class="main-row">
-            <el-card shadow="always"> Always </el-card>
-        </el-row>
-        <el-row :gutter="12" class="main-row">
-            <el-card shadow="always"> Always </el-card>
-        </el-row>
-    </div>
-
-</template>
-
-
+    <el-row :gutter="10">
+      <el-col :span="24"><div class="grid-content ep-bg-purple">
+        <el-card class="box-card">
+          <div v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</div>
+        </el-card>
+      </div></el-col>
+    </el-row>
+    <el-row :gutter="5">
+      <el-col :span="8" ><div class="grid-content ep-bg-purple" >
+        <el-card class="box-card">
+          <div v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</div>
+        </el-card>
+      </div></el-col>
+      <el-col :span="8" ><div class="grid-content ep-bg-purple" >
+        <el-card class="box-card">
+          <div v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</div>
+        </el-card>
+      </div></el-col>
+      <el-col :span="8" ><div class="grid-content ep-bg-purple" >
+        <el-card class="box-card">
+          <div v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</div>
+        </el-card>
+      </div></el-col>
+    </el-row>
+    <el-row :gutter="10">
+      <el-col :span="24"><div class="grid-content ep-bg-purple" >
+        <el-card class="box-card">
+          <div v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</div>
+        </el-card>
+      </div></el-col>
+    </el-row>
+  </template>
+  
 <style scoped>
-
-.main-container {
-  display: flex;
-  flex-direction: column;
-  height: calc(100% - 60px); /* 调整为所需的高度 */
+.el-row {
+  /* margin-bottom: 20px; */
+  min-height: calc((calc(95%) - 15px) /3) ;
+  margin-bottom: 5px;
 }
 
-.main-row {
-  flex: 1; /* 均分空间 */
-  height: 33%;
-  margin-top: 5px;
-}
 
-.pie-col{
-    height: 100%;
-    padding: 5px;
-}
-
-.pie-card{
-    height: 100%;
-}
-
-img {
+.grid-content {
+  border: none;
   height: 100%;
-  width: auto;
-  object-fit: contain;
-  display: block; 
+}
+
+.box-card {
+  width: 100%;
+  height: 100%;
+  background-color: lightgreen;
 }
 
 
 </style>
+  
