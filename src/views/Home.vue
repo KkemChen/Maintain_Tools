@@ -3,6 +3,7 @@ import CPUInfo from "../components/sysinfo/CPUInfo.vue";
 import DiskInfo from "../components/sysinfo/DiskInfo.vue";
 import ProcessInfo from "../components/sysinfo/ProcessInfo.vue";
 import Pie from "../components/v-charts/index.vue";
+import IOInfo from "../components/sysinfo/IOInfo.vue"
 import { ref, onMounted, nextTick } from "vue";
 const chartsOption = ref({
   cpuChart: {
@@ -48,9 +49,7 @@ onMounted(() => {
     <el-col :span="8"
       ><div class="grid-content ep-bg-purple">
         <el-card class="box-card">
-          <div v-for="o in 4" :key="o" class="text item">
-            {{ "List item " + o }}
-          </div>
+          <IOInfo />
         </el-card>
       </div></el-col
     >
@@ -82,7 +81,7 @@ onMounted(() => {
 .box-card {
   width: 100%;
   height: 100%;
-  background-color: lightgreen;
+  /* background-color: lightgreen; */
 }
 
 :deep(.el-card__body) {
