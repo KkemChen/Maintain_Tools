@@ -37,8 +37,8 @@
         "fullscreen": false,
         "resizable": true,
         "title": "test-app",
-        "width": 1000,
-        "height": 600
+        "width": 1200,
+        "height": 700
       }
     ]
   }

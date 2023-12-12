@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod sysinfo;
-
+use crate::sysinfo::cpu_info::get_cpu_info;
 
 
 fn main() {

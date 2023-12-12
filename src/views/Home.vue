@@ -34,7 +34,7 @@ onMounted(() => {
       chartsOption.value.loadChart.data = (Math.random() * 100).toFixed(2);
       chartsOption.value.diskChart.data = (Math.random() * 100).toFixed(2);
     });
-  }, 1000);
+  }, 3000);
 });
 </script>
 
