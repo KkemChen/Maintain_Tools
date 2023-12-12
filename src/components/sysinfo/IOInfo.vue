@@ -26,7 +26,7 @@ onMounted(() => {
       },
       toolbox: {
         feature: {
-          saveAsImage: {},
+          saveAsImage: false,
         },
       },
       grid: {
