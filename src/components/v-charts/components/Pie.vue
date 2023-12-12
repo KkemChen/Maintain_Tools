@@ -31,7 +31,6 @@ function initChart() {
     }
     const theme = 'light';
     let percentText = String(props.option.data).split('.');
-    console.log(`data: ${props.option.data}`)
     const option = {
         title: [
             {
