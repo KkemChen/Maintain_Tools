@@ -17,6 +17,9 @@ tauri = { version = "1.5", features = ["shell-open"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 sysinfo = "0.29.11"
+regex = {}
+ssh2 = {}
+lazy_static = {}
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

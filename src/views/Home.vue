@@ -5,6 +5,7 @@ import ProcessInfo from '../components/sysinfo/ProcessInfo.vue';
 import Pie from '../components/v-charts/index.vue';
 import IOInfo from '../components/sysinfo/IOInfo.vue';
 import { ref, onMounted, nextTick } from 'vue';
+import { invoke } from '@tauri-apps/api';
 
 const pieWidth = '200px';
 
@@ -26,7 +27,26 @@ const chartsOption = ref({
     data: 65.89,
   },
 });
+
+const host = "192.168.1.172:6622";
+const user = "root";
+const password = "ivauto@123";
+
+const ssh_connect = () => {
+  invoke('init_ssh_connect', {
+    host: host,
+    user: user,
+    password: password
+  }).then((response) => {
+      console.log("SSH connection initialized", response);
+    })
+    .catch((error) => {
+      console.error('Error fetching CPU info:', error);
+    });
+}
+
 onMounted(() => {
+  ssh_connect();
   setInterval(() => {
     nextTick(() => {
       chartsOption.value.cpuChart.data = (Math.random() * 100).toFixed(2);
