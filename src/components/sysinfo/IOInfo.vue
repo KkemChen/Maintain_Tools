@@ -1,28 +1,28 @@
 <script setup>
-import * as echarts from "echarts";
-import { onMounted, onUnmounted } from "vue";
+import * as echarts from 'echarts';
+import { onMounted, onUnmounted } from 'vue';
 
 let myChart = null;
 
 onMounted(() => {
-  const chartDom = document.getElementById("IO-Info");
+  const chartDom = document.getElementById('IO-Info');
   if (chartDom) {
     myChart = echarts.init(chartDom);
     const option = {
       title: {
-        text: "",
+        text: '',
       },
       tooltip: {
-        trigger: "axis",
+        trigger: 'axis',
         axisPointer: {
-          type: "cross",
+          type: 'cross',
           label: {
-            backgroundColor: "#6a7985",
+            backgroundColor: '#6a7985',
           },
         },
       },
       legend: {
-        data: ["Input", "Output"],
+        data: ['Input', 'Output'],
       },
       toolbox: {
         feature: {
@@ -30,44 +30,44 @@ onMounted(() => {
         },
       },
       grid: {
-        left: "3%",
-        right: "4%",
-        bottom: "3%",
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
         containLabel: true,
       },
       xAxis: [
         {
-          type: "category",
+          type: 'category',
           boundaryGap: false,
-          data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
         },
       ],
       yAxis: [
         {
-          type: "value",
+          type: 'value',
         },
       ],
       series: [
         {
-          name: "Input",
-          type: "line",
-          stack: "Total",
+          name: 'Input',
+          type: 'line',
+          stack: 'Total',
           areaStyle: {},
           emphasis: {
-            focus: "series",
+            focus: 'series',
           },
           data: [120, 132, 101, 134, 90, 230, 210],
         },
         {
-          name: "Output",
-          type: "line",
-          stack: "Total",
+          name: 'Output',
+          type: 'line',
+          stack: 'Total',
           areaStyle: {},
           emphasis: {
-            focus: "series",
+            focus: 'series',
           },
           data: [220, 182, 191, 234, 290, 330, 310],
-        }
+        },
       ],
     };
     myChart.setOption(option);
@@ -79,7 +79,7 @@ onMounted(() => {
     }
   };
 
-  window.addEventListener("resize", resizeChart);
+  window.addEventListener('resize', resizeChart);
 });
 
 onUnmounted(() => {

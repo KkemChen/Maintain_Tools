@@ -14,11 +14,11 @@
   -webkit-text-size-adjust: 100%;
 }
 
-body{
+body {
   margin: 0;
   height: 100vh;
 }
 
-#app{
+#app {
   height: 100%;
 }

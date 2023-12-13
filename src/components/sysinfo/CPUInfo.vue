@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
-import { invoke } from '@tauri-apps/api'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { invoke } from '@tauri-apps/api';
 
 interface TableDataItem {
   Index: string;
@@ -17,16 +17,16 @@ const tableData = ref<TableDataItem[]>([
 ]);
 
 const getProgressStatus = (percentage) => {
-  if (percentage <= 50) return "success";
-  if (percentage > 50 && percentage < 70) return "warning";
-  return "exception";
+  if (percentage <= 50) return 'success';
+  if (percentage > 50 && percentage < 70) return 'warning';
+  return 'exception';
 };
 
-const firstColumnWidth = ref(""); // 存储第一列的宽度
-const secondColumnWidth = ref(""); // 存储第二列的宽度
+const firstColumnWidth = ref(''); // 存储第一列的宽度
+const secondColumnWidth = ref(''); // 存储第二列的宽度
 
 const updateColumnWidths = () => {
-  const tableElement = document.getElementById("CPU-Info"); // 替换为您的表格元素选择器
+  const tableElement = document.getElementById('CPU-Info'); // 替换为您的表格元素选择器
   if (tableElement) {
     const tableWidth = tableElement.clientWidth;
     firstColumnWidth.value = `${(tableWidth - 20) * 0.2}px`; // 30% 的宽度
@@ -35,16 +35,16 @@ const updateColumnWidths = () => {
 };
 
 const fetchCPUInfo = () => {
-  invoke("get_cpu_info")
+  invoke('get_cpu_info')
     .then((dataStr) => {
       const data = JSON.parse(dataStr);
       tableData.value = data.map((item, index) => ({
-        Index: `CPU${index}`, 
-        Useage: Math.floor(item.usage)
+        Index: `CPU${index}`,
+        Useage: Math.floor(item.usage),
       }));
     })
     .catch((error) => {
-      console.error("Error fetching CPU info:", error);
+      console.error('Error fetching CPU info:', error);
     });
 };
 
@@ -53,7 +53,7 @@ let intervalId: number | undefined;
 onMounted(() => {
   updateColumnWidths();
   fetchCPUInfo();
-  window.addEventListener("resize", updateColumnWidths);
+  window.addEventListener('resize', updateColumnWidths);
 
   intervalId = setInterval(() => {
     fetchCPUInfo(); // 定时获取 CPU 信息
@@ -64,7 +64,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  window.removeEventListener("resize", updateColumnWidths);
+  window.removeEventListener('resize', updateColumnWidths);
   if (intervalId !== undefined) {
     clearInterval(intervalId);
   }
