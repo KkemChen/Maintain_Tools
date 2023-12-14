@@ -20,6 +20,7 @@ sysinfo = "0.29.11"
 regex = {}
 ssh2 = {}
 lazy_static = {}
+toml = {}
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

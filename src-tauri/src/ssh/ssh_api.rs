@@ -1,28 +1,55 @@
 use super::ssh_manager::*;
 use lazy_static::lazy_static;
+use serde::Deserialize;
 use std::collections::HashMap;
+use std::fs;
 use std::sync::{Arc, Mutex};
+use toml;
 
 lazy_static! {
     static ref SSHMAP: Mutex<HashMap<String, SshConnectionManager>> = Mutex::new(HashMap::new());
 }
 
+#[derive(Deserialize)]
+struct Config {
+    local_path: String,
+    remote_path: String,
+}
+
+fn read_config() -> Result<Config, String> {
+    let config_str = fs::read_to_string("config.toml")
+        .map_err(|e| format!("Failed to read config file: {}", e))?;
+    toml::from_str(&config_str).map_err(|e| format!("Failed to parse config file: {}", e))
+}
+
 #[tauri::command]
-pub fn add_ssh_connect(host: &str, user: &str, password: &str) {
+pub fn add_ssh_connect(host: &str, user: &str, password: &str) -> Result<(), String> {
+    let config = read_config()?;
+
     let mut manager = SshConnectionManager::new();
-    let _ = manager.connect(host, user, password);
-    let _ = manager.send_file(
-        "C:\\Users\\Administrator\\Desktop\\sysinfo-http",
-        "/tmp/sysinfo-http",
-    );
-    manager.exec_command("chmod +x /tmp/sysinfo-http").unwrap();
+    manager
+        .connect(host, user, password)
+        .map_err(|e| format!("Failed to connect: {}", e))?;
+    manager
+        .exec_command("pkill -9 sysinfo-http")
+        .map_err(|e| e.to_string())?;
+
+    manager
+        .send_file(&config.local_path, &config.remote_path)
+        .map_err(|e| format!("Failed to send file: {}", e))?;
+
+    manager
+        .exec_command("chmod +x /tmp/sysinfo-http")
+        .map_err(|e| e.to_string())?;
+
     manager
         .exec_command("nohup /tmp/sysinfo-http > /dev/null 2>&1 &")
-        .unwrap();
-    //todo:添加到map
+        .map_err(|e| format!("Failed to execute sysinfo-http command: {}", e))?;
+
     let mut map = SSHMAP.lock().unwrap();
     map.insert(host.to_string(), manager);
     println!("Add ssh connect success. {}", host);
+    Ok(())
 }
 
 #[tauri::command]

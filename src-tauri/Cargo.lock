@@ -3025,6 +3025,7 @@ dependencies = [
  "sysinfo",
  "tauri",
  "tauri-build",
+ "toml 0.5.11",
 ]
 
 [[package]]
