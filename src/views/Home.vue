@@ -1,18 +1,21 @@
 <script setup>
-import CPUInfo from '../components/sysinfo/CPUInfo.vue';
-import DiskInfo from '../components/sysinfo/DiskInfo.vue';
-import ProcessInfo from '../components/sysinfo/ProcessInfo.vue';
-import Pie from '../components/v-charts/index.vue';
-import IOInfo from '../components/sysinfo/IOInfo.vue';
+import CPUInfo from '@/components/sysinfo/CPUInfo.vue';
+import DiskInfo from '@/components/sysinfo/DiskInfo.vue';
+import ProcessInfo from '@/components/sysinfo/ProcessInfo.vue';
+import Pie from '@/components/v-charts/index.vue';
+import IOInfo from '@/components/sysinfo/IOInfo.vue';
 import { ref, onMounted, nextTick, onUnmounted } from 'vue';
 import { invoke } from '@tauri-apps/api';
 
-const pieWidth = '200px';
+import { useSysinfo } from '@/api/sysinfo';
 
+const { fetchCPUInfo } = useSysinfo();
+
+const pieWidth = '200px';
 const chartsOption = ref({
   cpuChart: {
     title: 'CPU',
-    data: 65.89,
+    data: 0.0,
   },
   memoryChart: {
     title: 'Memory',
@@ -27,6 +30,8 @@ const chartsOption = ref({
     data: 65.89,
   },
 });
+
+const cpuTableData = ref([]);
 
 const host = '192.168.1.172:6622';
 const user = 'root';
@@ -58,11 +63,27 @@ const disconnect_ssh = () => {
     });
 };
 
+const getCPUAverageUsage = (cpuData) => {
+  if (Array.isArray(cpuData) && cpuData.length > 0) {
+    const totalUsage = cpuData.reduce((sum, cpu) => sum + cpu.usage, 0);
+    const averageUsage = totalUsage / cpuData.length;
+    return averageUsage;
+  }
+  return 0.0;
+};
+
 onMounted(() => {
   ssh_connect();
+  //先触发一次保证第一个三秒内有值
+  fetchCPUInfo().then((data) => {
+    cpuTableData.value = data;
+  });
   setInterval(() => {
     nextTick(() => {
-      chartsOption.value.cpuChart.data = (Math.random() * 100).toFixed(2);
+      fetchCPUInfo().then((data) => {
+        cpuTableData.value = data;
+      });
+      chartsOption.value.cpuChart.data = getCPUAverageUsage(cpuTableData.value).toFixed(2);
       chartsOption.value.memoryChart.data = (Math.random() * 100).toFixed(2);
       chartsOption.value.loadChart.data = (Math.random() * 100).toFixed(2);
       chartsOption.value.diskChart.data = (Math.random() * 100).toFixed(2);
@@ -94,7 +115,7 @@ onUnmounted(() => {
     <el-col :span="8">
       <div class="grid-content ep-bg-purple">
         <el-card class="box-card">
-          <CPUInfo />
+          <CPUInfo :option="cpuTableData" />
         </el-card>
       </div>
     </el-col>
