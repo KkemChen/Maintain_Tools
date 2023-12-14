@@ -15,3 +15,10 @@ pub fn create_app<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::App<R
         .build(tauri::generate_context!())
         .expect("error while running tauri application")
 }
+
+pub fn cleanup_on_exit() {
+    match crate::ssh::ssh_api::disconnect_all() {
+        Ok(result) => println!("{}", result),
+        Err(e) => println!("Error: {}", e),
+    }
+}

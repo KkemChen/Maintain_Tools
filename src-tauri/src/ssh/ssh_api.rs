@@ -16,15 +16,30 @@ struct Config {
     remote_path: String,
 }
 
-fn read_config() -> Result<Config, String> {
-    let config_str = fs::read_to_string("config.toml")
-        .map_err(|e| format!("Failed to read config file: {}", e))?;
-    toml::from_str(&config_str).map_err(|e| format!("Failed to parse config file: {}", e))
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            local_path: "plugins/sysinfo-http".to_string(),
+            remote_path: "/tmp/sysinfo-http".to_string(),
+        }
+    }
+}
+
+fn read_config() -> Config {
+    let config_str = match fs::read_to_string("config.toml") {
+        Ok(contents) => contents,
+        Err(_) => return Config::default(),
+    };
+
+    match toml::from_str(&config_str) {
+        Ok(config) => config,
+        Err(_) => Config::default(),
+    }
 }
 
 #[tauri::command]
 pub fn add_ssh_connect(host: &str, user: &str, password: &str) -> Result<(), String> {
-    let config = read_config()?;
+    let config = read_config();
 
     let mut manager = SshConnectionManager::new();
     manager
@@ -89,6 +104,22 @@ pub fn disconnect_ssh(host: &str) -> Result<String, String> {
     } else {
         Err(format!("Manager for specified host not found, {}", host))
     }
+}
+
+pub fn disconnect_all() -> Result<String, String> {
+    let map = SSHMAP.lock().unwrap();
+    let mut result = String::new();
+
+    for (_host, manager) in map.iter() {
+        match manager.exec_command("pkill -9 sysinfo-http") {
+            Ok(output) => result.push_str(&format!("{}: Disconnect success\n", _host)),
+            Err(err) => result.push_str(&format!(
+                "{}: Failed to execute command: {:?}\n",
+                _host, err
+            )),
+        }
+    }
+    Ok(result)
 }
 
 #[cfg(test)]
