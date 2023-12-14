@@ -4,6 +4,16 @@
 
 import Menu from './components/menu/index.vue';
 import Info from './components/info/index.vue';
+
+const host = import.meta.env.VITE_HOST;
+const port = import.meta.env.VITE_PORT;
+const user = import.meta.env.VITE_USER;
+const password = import.meta.env.VITE_PASSWORD;
+
+localStorage.setItem('host', host);
+localStorage.setItem('port', port);
+localStorage.setItem('user', user);
+localStorage.setItem('password', password);
 </script>
 
 <template>

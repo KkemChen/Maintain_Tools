@@ -36,7 +36,7 @@ const tableData = ref<TableDataItem[]>([
 ]);
 
 const fetchProcessInfo = () => {
-  invoke('get_process_info', { host: '192.168.1.172:6622' })
+  invoke('get_process_info', { host: localStorage.getItem('host') + ':' + localStorage.getItem('port') })
     .then((dataStr) => {
       // console.log(dataStr);
       const data = JSON.parse(dataStr);

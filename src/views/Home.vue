@@ -33,15 +33,11 @@ const chartsOption = ref({
 
 const cpuTableData = ref([]);
 
-const host = '192.168.1.172:6622';
-const user = 'root';
-const password = 'ivauto@123';
-
 const ssh_connect = () => {
   invoke('add_ssh_connect', {
-    host: host,
-    user: user,
-    password: password,
+    host: localStorage.getItem('host') + ':' + localStorage.getItem('port'),
+    user: localStorage.getItem('user'),
+    password: localStorage.getItem('password'),
   })
     .then((response) => {
       console.log('SSH connection initialized', response);
@@ -75,6 +71,7 @@ const getCPUAverageUsage = (cpuData) => {
 onMounted(() => {
   ssh_connect();
   //先触发一次保证第一个三秒内有值
+
   fetchCPUInfo().then((data) => {
     cpuTableData.value = data;
   });
