@@ -1,19 +1,25 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
-import { invoke } from '@tauri-apps/api';
 
 interface TableDataItem {
-  Index: string;
-  Useage: Number;
+  index: string;
+  usage: number;
 }
 
+const props = defineProps({
+  option: {
+    type: Array,
+    default: () => [],
+  },
+});
+
 const tableData = ref<TableDataItem[]>([
-  // { Index: "CPU0", Useage: 86 },
-  // { Index: "CPU1", Useage: 36 },
-  // { Index: "CPU2", Useage: 62 },
-  // { Index: "CPU3", Useage: 50 },
-  // { Index: "CPU4", Useage: 32 },
-  // { Index: "CPU5", Useage: 66 },
+  // { Index: "CPU0", usage: 86 },
+  // { Index: "CPU1", usage: 36 },
+  // { Index: "CPU2", usage: 62 },
+  // { Index: "CPU3", usage: 50 },
+  // { Index: "CPU4", usage: 32 },
+  // { Index: "CPU5", usage: 66 },
 ]);
 
 const getProgressStatus = (percentage) => {
@@ -34,29 +40,22 @@ const updateColumnWidths = () => {
   }
 };
 
-const fetchCPUInfo = () => {
-  invoke('get_cpu_info')
-    .then((dataStr) => {
-      const data = JSON.parse(dataStr);
-      tableData.value = data.map((item, index) => ({
-        Index: `CPU${index}`,
-        Useage: Math.floor(item.usage),
-      }));
-    })
-    .catch((error) => {
-      console.error('Error fetching CPU info:', error);
-    });
+const assignCPUInfo = () => {
+  tableData.value = props.option.map((item, index) => ({
+    index: `CPU${index}`,
+    usage: Math.floor((item as TableDataItem).usage),
+  }));
 };
 
 let intervalId: number | undefined;
 
 onMounted(() => {
   updateColumnWidths();
-  fetchCPUInfo();
+  assignCPUInfo();
   window.addEventListener('resize', updateColumnWidths);
 
   intervalId = setInterval(() => {
-    fetchCPUInfo(); // 定时获取 CPU 信息
+    assignCPUInfo();
     nextTick(() => {
       updateColumnWidths();
     });
@@ -80,14 +79,14 @@ onUnmounted(() => {
     :cell-style="{ padding: '0px' }"
     id="CPU-Info"
   >
-    <el-table-column prop="Index" label="CPU" :width="firstColumnWidth" />
-    <el-table-column label="Useage" :width="secondColumnWidth">
+    <el-table-column prop="index" label="CPU" :width="firstColumnWidth" />
+    <el-table-column label="usage" :width="secondColumnWidth">
       <template v-slot="{ row }">
         <el-progress
           :text-inside="true"
           :stroke-width="15"
-          :percentage="row.Useage"
-          :status="getProgressStatus(row.Useage)"
+          :percentage="row.usage"
+          :status="getProgressStatus(row.usage)"
         />
       </template>
     </el-table-column>
