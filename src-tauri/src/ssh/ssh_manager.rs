@@ -55,6 +55,20 @@ impl SshConnectionManager {
         }
     }
 
+    pub fn exec_command_on_shell(&self, command: &str) -> Result<String, Box<dyn Error>> {
+        if let Some(session) = &self.session {
+            let mut channel = session.channel_session()?;
+            channel.request_pty("xterm", None, Some((800, 600, 0, 0)))?;
+            channel.exec(command);
+            let mut s = String::new();
+            channel.read_to_string(&mut s);
+            channel.wait_close()?;
+            Ok(s)
+        } else {
+            Err("Not connected to any server".into())
+        }
+    }
+
     pub fn send_file(&self, local_path: &str, remote_path: &str) -> Result<(), Box<dyn Error>> {
         if let Some(session) = &self.session {
             let mut sftp = session.sftp()?;

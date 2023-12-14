@@ -39,6 +39,19 @@ pub fn exec_ssh_command(host: &str, command: &str) -> Result<String, String> {
 }
 
 #[tauri::command]
+pub fn exec_ssh_command_on_shell(host: &str, command: &str) -> Result<String, String> {
+    let map = SSHMAP.lock().unwrap();
+    if let Some(manager) = map.get(host) {
+        match manager.exec_command_on_shell(command) {
+            Ok(output) => Ok(output),
+            Err(err) => Err(format!("Failed to execute command: {:?}", err)),
+        }
+    } else {
+        Err(format!("Manager for specified host not found, {}", host))
+    }
+}
+
+#[tauri::command]
 pub fn disconnect_ssh(host: &str) -> Result<String, String> {
     let map = SSHMAP.lock().unwrap();
     if let Some(manager) = map.get(host) {
