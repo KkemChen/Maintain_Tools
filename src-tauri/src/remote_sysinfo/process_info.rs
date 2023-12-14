@@ -17,7 +17,7 @@ struct ProcessInfo {
 #[tauri::command]
 pub fn get_process_info(host: &str) -> Result<String, String> {
     let output = exec_ssh_command(host, "top -b -n 1")?;
-    println!("{}", output);
+    // println!("{}", output);
 
     let re = Regex::new(
         r"(?m)^\s*(\d+)\s+(\S+)\s+\d+\s+\d+\s+(\S+)\s+(\S+)\s+\S+\s+\S+\s+(\S+)\s+(\S+)\s+\S+\s+(.+)$",
@@ -38,7 +38,7 @@ pub fn get_process_info(host: &str) -> Result<String, String> {
     }
 
     let json = serde_json::to_string(&process_infos).map_err(|e| e.to_string())?;
-    println!("JSON output: {}", json);
+    // println!("JSON output: {}", json);
     Ok(json)
 }
 

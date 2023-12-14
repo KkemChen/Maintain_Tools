@@ -4,7 +4,7 @@ import DiskInfo from '../components/sysinfo/DiskInfo.vue';
 import ProcessInfo from '../components/sysinfo/ProcessInfo.vue';
 import Pie from '../components/v-charts/index.vue';
 import IOInfo from '../components/sysinfo/IOInfo.vue';
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick, onUnmounted } from 'vue';
 import { invoke } from '@tauri-apps/api';
 
 const pieWidth = '200px';
@@ -28,22 +28,35 @@ const chartsOption = ref({
   },
 });
 
-const host = "192.168.1.172:6622";
-const user = "root";
-const password = "ivauto@123";
+const host = '192.168.1.172:6622';
+const user = 'root';
+const password = 'ivauto@123';
 
 const ssh_connect = () => {
-  invoke('init_ssh_connect', {
+  invoke('add_ssh_connect', {
     host: host,
     user: user,
-    password: password
-  }).then((response) => {
-      console.log("SSH connection initialized", response);
+    password: password,
+  })
+    .then((response) => {
+      console.log('SSH connection initialized', response);
     })
     .catch((error) => {
       console.error('Error fetching CPU info:', error);
     });
-}
+};
+
+const disconnect_ssh = () => {
+  invoke('disconnect_ssh', {
+    host: host,
+  })
+    .then((response) => {
+      console.log('Disconnect ssh success: ', response);
+    })
+    .catch((error) => {
+      console.error('Disconnect ssh failed: ', error);
+    });
+};
 
 onMounted(() => {
   ssh_connect();
@@ -55,6 +68,10 @@ onMounted(() => {
       chartsOption.value.diskChart.data = (Math.random() * 100).toFixed(2);
     });
   }, 3000);
+});
+
+onUnmounted(() => {
+  disconnect_ssh();
 });
 </script>
 

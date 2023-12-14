@@ -22,7 +22,7 @@ pub fn add_ssh_connect(host: &str, user: &str, password: &str) {
     //todo:添加到map
     let mut map = SSHMAP.lock().unwrap();
     map.insert(host.to_string(), manager);
-    println!("Add ssh connect success.");
+    println!("Add ssh connect success. {}", host);
 }
 
 #[tauri::command]
@@ -34,7 +34,7 @@ pub fn exec_ssh_command(host: &str, command: &str) -> Result<String, String> {
             Err(err) => Err(format!("Failed to execute command: {:?}", err)),
         }
     } else {
-        Err("Manager for specified host not found".to_string())
+        Err(format!("Manager for specified host not found, {}", host))
     }
 }
 
@@ -47,7 +47,7 @@ pub fn disconnect_ssh(host: &str) -> Result<String, String> {
             Err(err) => Err(format!("Failed to execute command: {:?}", err)),
         }
     } else {
-        Err("Manager for specified host not found".to_string())
+        Err(format!("Manager for specified host not found, {}", host))
     }
 }
 
