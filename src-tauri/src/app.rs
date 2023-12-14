@@ -9,7 +9,8 @@ pub fn create_app<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::App<R
             crate::ssh::ssh_api::exec_ssh_command,
             crate::ssh::ssh_api::disconnect_ssh,
             crate::local_sysinfo::cpu_info::get_cpu_info,
-            crate::remote_sysinfo::process_info::get_process_info
+            crate::remote_sysinfo::process_info::get_process_info,
+            crate::remote_sysinfo::disk_info::get_disk_info
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application")
