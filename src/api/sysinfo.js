@@ -1,5 +1,8 @@
 import { invoke } from '@tauri-apps/api';
 
+// const requestUrl = 'http://' + localStorage.getItem(host) + ':9888';
+const requestUrl = 'http://' + '192.168.1.172' + ':9888';
+
 const fetchCPUInfo = () => {
   return new Promise((resolve, reject) => {
     invoke('get_cpu_info')
@@ -14,8 +17,25 @@ const fetchCPUInfo = () => {
   });
 };
 
+
+const fetchRemoteCPUInfo = async () => {
+  try {
+    const response = await fetch(requestUrl + '/cpus');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.cpu_info;
+  } catch (error) {
+    console.error('Error fetching CPU info:', error);
+    throw error;
+  }
+};
+
+
 export const useSysinfo = () => {
   return {
-    fetchCPUInfo
+    fetchCPUInfo,
+    fetchRemoteCPUInfo
   }
 }

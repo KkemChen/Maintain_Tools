@@ -9,7 +9,7 @@ import { invoke } from '@tauri-apps/api';
 
 import { useSysinfo } from '@/api/sysinfo';
 
-const { fetchCPUInfo } = useSysinfo();
+const { fetchCPUInfo, fetchRemoteCPUInfo } = useSysinfo();
 
 const pieWidth = '200px';
 const chartsOption = ref({
@@ -61,7 +61,7 @@ const disconnect_ssh = () => {
 
 const getCPUAverageUsage = (cpuData) => {
   if (Array.isArray(cpuData) && cpuData.length > 0) {
-    const totalUsage = cpuData.reduce((sum, cpu) => sum + cpu.usage, 0);
+    const totalUsage = cpuData.reduce((sum, cpu) => sum + cpu.percent, 0);
     const averageUsage = totalUsage / cpuData.length;
     return averageUsage;
   }
@@ -72,12 +72,12 @@ onMounted(() => {
   ssh_connect();
   //先触发一次保证第一个三秒内有值
 
-  fetchCPUInfo().then((data) => {
+  fetchRemoteCPUInfo().then((data) => {
     cpuTableData.value = data;
   });
   setInterval(() => {
     nextTick(() => {
-      fetchCPUInfo().then((data) => {
+      fetchRemoteCPUInfo().then((data) => {
         cpuTableData.value = data;
       });
       chartsOption.value.cpuChart.data = getCPUAverageUsage(cpuTableData.value).toFixed(2);
