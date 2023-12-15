@@ -103,7 +103,6 @@ onMounted(() => {
         cpuTableData.value = data;
       });
       fetchRemoteMemoryInfo().then((data) => {
-        console.log(data);
         memTableData.value = data;
       });
       fetchRemoteLoadInfo().then((data) => {

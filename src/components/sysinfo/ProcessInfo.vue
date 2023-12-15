@@ -59,7 +59,15 @@ let intervalId: number | undefined;
 
 // 格式化函数
 const formatMem = (row, column, cellValue, index) => {
-  return `${cellValue} MiB`;
+  // 检查 cellValue 的最后一个字符是否是字母
+  if (/^[a-zA-Z]$/.test(cellValue.slice(-1))) {
+    // 如果是字母，将最后一个字符转换为大写并返回
+    return `${cellValue.slice(0, -1)} ${cellValue.slice(-1).toUpperCase()}B`;
+  } else {
+    // 如果不是字母，转换值并添加单位 "Mb"
+    let value = cellValue / 1024;
+    return `${value.toFixed(2)} MB`;
+  }
 };
 
 const formatPercentage = (row, column, cellValue, index) => {
@@ -94,8 +102,8 @@ onUnmounted(() => {
   >
     <el-table-column prop="PID" label="PID" :width="otherColumnWidth" />
     <el-table-column prop="Name" label="Name" :width="nameColumnWidth" />
-    <el-table-column prop="Virt" label="Virt" :width="otherColumnWidth" />
-    <el-table-column prop="Res" label="Res" :width="otherColumnWidth" />
+    <el-table-column prop="Virt" label="Virt" :width="otherColumnWidth" :formatter="formatMem" />
+    <el-table-column prop="Res" label="Res" :width="otherColumnWidth" :formatter="formatMem" />
     <el-table-column prop="CPU" label="CPU" :width="otherColumnWidth" :formatter="formatPercentage" />
     <el-table-column prop="Memory" label="Memory" :width="otherColumnWidth" :formatter="formatPercentage" />
   </el-table>

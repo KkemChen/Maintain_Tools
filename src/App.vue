@@ -19,7 +19,7 @@ localStorage.setItem('password', password);
 <template>
   <div class="common-layout">
     <el-container>
-      <el-aside width="200px">
+      <el-aside width="15%">
         <Menu />
         <Info />
       </el-aside>
