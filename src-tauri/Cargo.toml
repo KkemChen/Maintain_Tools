@@ -1,8 +1,8 @@
 [package]
-name = "test-app"
+name = "Maintain-Tools"
 version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "An operation and maintenance tool"
+authors = ["kkem"]
 license = ""
 repository = ""
 edition = "2021"

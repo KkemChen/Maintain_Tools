@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "test-app",
+    "productName": "Maintain-Tools",
     "version": "0.0.0"
   },
   "tauri": {
@@ -40,7 +40,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "test-app",
+        "title": "Maintain-Tools",
         "width": 1200,
         "height": 700
       }

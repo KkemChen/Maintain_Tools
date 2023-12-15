@@ -3,6 +3,21 @@
 version = 3
 
 [[package]]
+name = "Maintain-Tools"
+version = "0.0.0"
+dependencies = [
+ "lazy_static",
+ "regex",
+ "serde",
+ "serde_json",
+ "ssh2",
+ "sysinfo",
+ "tauri",
+ "tauri-build",
+ "toml 0.5.11",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3011,21 +3026,6 @@ dependencies = [
  "futf",
  "mac",
  "utf-8",
-]
-
-[[package]]
-name = "test-app"
-version = "0.0.0"
-dependencies = [
- "lazy_static",
- "regex",
- "serde",
- "serde_json",
- "ssh2",
- "sysinfo",
- "tauri",
- "tauri-build",
- "toml 0.5.11",
 ]
 
 [[package]]
