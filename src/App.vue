@@ -19,10 +19,11 @@ localStorage.setItem('password', password);
 <template>
   <div class="common-layout">
     <el-container>
-      <el-aside width="15%">
-        <Menu />
+      <Menu />
+      <!-- <el-aside width="15%">
+        
         <Info />
-      </el-aside>
+      </el-aside> -->
       <el-main>
         <el-header>Header</el-header>
         <router-view></router-view>
