@@ -6,10 +6,13 @@ import Pie from '@/components/v-charts/index.vue';
 import IOInfo from '@/components/sysinfo/IOInfo.vue';
 import { ref, onMounted, nextTick, onUnmounted } from 'vue';
 import { invoke } from '@tauri-apps/api';
+import { useGlobalStore } from '@/store';
 
-import { useSysinfo } from '@/api/sysinfo';
+// import { useSysinfo } from '@/api/sysinfo';
 
-const { fetchCPUInfo, fetchRemoteCPUInfo, fetchRemoteMemoryInfo, fetchRemoteLoadInfo } = useSysinfo();
+// const { fetchCPUInfo, fetchRemoteCPUInfo, fetchRemoteMemoryInfo, fetchRemoteLoadInfo } = useSysinfo();
+
+const globalStore = useGlobalStore();
 
 const pieWidth = '200px';
 const chartsOption = ref({
@@ -86,16 +89,11 @@ const getLoadUsage = (loadData) => {
   return 0.0;
 };
 
-const getRemoteInfo = () => {
-  fetchRemoteMemoryInfo().then((data) => {
-    memTableData.value = data;
-  });
-  fetchRemoteCPUInfo().then((data) => {
-    cpuTableData.value = data;
-  });
-  fetchRemoteLoadInfo().then((data) => {
-    loadTableData.value = data;
-  });
+const getRemoteInfo = async () => {
+  await globalStore.getSystemInfo();
+  cpuTableData.value = globalStore.systemInfo.cpuInfo;
+  memTableData.value = globalStore.systemInfo.memoryInfo;
+  loadTableData.value = globalStore.systemInfo.loadInfo;
 };
 
 onMounted(() => {

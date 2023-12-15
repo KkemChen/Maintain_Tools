@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api';
 
 const requestUrl = `http://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_HTTP_PORT}`;
 
-const fetchCPUInfo = () => {
+const fetchLocalCPUInfo = () => {
   return new Promise((resolve, reject) => {
     invoke('get_cpu_info')
       .then((res) => {
@@ -76,7 +76,7 @@ const fetchRemoteIoInfo = async () => {
 
 export const useSysinfo = () => {
   return {
-    fetchCPUInfo,
+    fetchLocalCPUInfo,
     fetchRemoteCPUInfo,
     fetchRemoteMemoryInfo,
     fetchRemoteLoadInfo,
