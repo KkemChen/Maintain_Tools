@@ -136,6 +136,9 @@ onUnmounted(() => {
   if (myChart) {
     myChart.dispose();
   }
+  if (intervalId !== undefined) {
+    clearInterval(intervalId); // 清除定时器
+  }
 });
 </script>
 

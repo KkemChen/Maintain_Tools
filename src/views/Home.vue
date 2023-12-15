@@ -51,7 +51,7 @@ const ssh_connect = () => {
 
 const disconnect_ssh = () => {
   invoke('disconnect_ssh', {
-    host: host,
+    host: localStorage.getItem('host') + ':' + localStorage.getItem('port'),
   })
     .then((response) => {
       console.log('Disconnect ssh success: ', response);
