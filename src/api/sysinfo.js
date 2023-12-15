@@ -41,7 +41,7 @@ const fetchRemoteMemoryInfo = async () => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching CPU info:', error);
+    console.error('Error fetching Memory info:', error);
     throw error;
   }
 }
@@ -55,16 +55,32 @@ const fetchRemoteLoadInfo = async () => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching CPU info:', error);
+    console.error('Error fetching Load info:', error);
     throw error;
   }
 }
+
+const fetchRemoteIoInfo = async () => {
+  try {
+    const response = await fetch(requestUrl + '/networks');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching Io info:', error);
+    throw error;
+  }
+}
+
 
 export const useSysinfo = () => {
   return {
     fetchCPUInfo,
     fetchRemoteCPUInfo,
     fetchRemoteMemoryInfo,
-    fetchRemoteLoadInfo
+    fetchRemoteLoadInfo,
+    fetchRemoteIoInfo
   }
 }
