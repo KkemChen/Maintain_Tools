@@ -1,6 +1,15 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { Document, Menu as IconMenu, Location, Setting, Expand, Fold, HomeFilled } from '@element-plus/icons-vue';
+import {
+  Document,
+  Menu as IconMenu,
+  Location,
+  Setting,
+  Expand,
+  Fold,
+  HomeFilled,
+  SuccessFilled,
+} from '@element-plus/icons-vue';
 
 const isCollapse = ref(true);
 const handleOpen = (key: string, keyPath: string[]) => {
@@ -14,20 +23,7 @@ const toggleCollapse = () => {
 };
 </script>
 
-<style>
-.el-menu-vertical-demo:not(.el-menu--collapse) {
-  width: 200px;
-  min-height: 400px;
-}
-</style>
-
 <template>
-  <!--   <el-menu router>
-    <el-menu-item index="/">Home</el-menu-item>
-    <el-menu-item index="/tools">Tools</el-menu-item>
-    <el-menu-item index="/search">Search</el-menu-item>
-  </el-menu> -->
-
   <el-menu
     default-active="2"
     class="el-menu-vertical-demo"
@@ -53,6 +49,10 @@ const toggleCollapse = () => {
       <template #title>Setting</template>
     </el-menu-item>
 
+    <el-menu-item class="menu-item-above-bottom">
+      <!-- <el-icon><SuccessFilled /></el-icon>  预留 -->
+    </el-menu-item>
+
     <el-menu-item class="menu-item-bottom" @click="toggleCollapse">
       <el-icon v-if="isCollapse"><Expand /></el-icon>
       <el-icon v-else><Fold /></el-icon>
@@ -65,10 +65,18 @@ const toggleCollapse = () => {
   height: 100%;
   position: relative;
 }
-
+.el-menu-vertical-demo:not(.el-menu--collapse) {
+  width: 200px;
+  min-height: 400px;
+}
 .menu-item-bottom {
   position: absolute;
   bottom: 0;
+  width: 100%;
+}
+.menu-item-above-bottom {
+  position: absolute;
+  bottom: 50px;
   width: 100%;
 }
 </style>
