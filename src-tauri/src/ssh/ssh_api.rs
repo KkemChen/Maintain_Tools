@@ -139,4 +139,17 @@ mod test {
         thread::sleep(Duration::from_secs(10));
         disconnect_ssh("192.168.1.172:6622");
     }
+
+    #[test]
+    fn test_exec_command() {
+        add_ssh_connect("192.168.1.172:5523", "root", "ivauto@123");
+        let out = exec_ssh_command_on_shell(
+            "192.168.1.172:5523",
+            "timeout 10 ffprobe -v quiet -print_format json -show_format -show_streams rtsp://192.168.1.82/live/66",
+        )
+        .unwrap();
+
+        println!("xxx: {}", out);
+        disconnect_ssh("192.168.1.172:5523");
+    }
 }
