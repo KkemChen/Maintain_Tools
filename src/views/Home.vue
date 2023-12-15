@@ -9,7 +9,7 @@ import { invoke } from '@tauri-apps/api';
 
 import { useSysinfo } from '@/api/sysinfo';
 
-const { fetchCPUInfo, fetchRemoteCPUInfo, fetchRemoteMemoryInfo } = useSysinfo();
+const { fetchCPUInfo, fetchRemoteCPUInfo, fetchRemoteMemoryInfo, fetchRemoteLoadInfo } = useSysinfo();
 
 const pieWidth = '200px';
 const chartsOption = ref({
@@ -33,6 +33,7 @@ const chartsOption = ref({
 
 const cpuTableData = ref([]);
 const memTableData = ref([]);
+const loadTableData = ref([]);
 
 const ssh_connect = () => {
   invoke('add_ssh_connect', {
@@ -78,6 +79,12 @@ const getMemoryUsage = (memData) => {
   return 0.0;
 };
 
+const getLoadUsage = (loadData) => {
+  if (Array.isArray(loadData) && loadData.length > 0) {
+    return loadData[0].one;
+  }
+  return 0.0;
+};
 onMounted(() => {
   ssh_connect();
   //先触发一次保证第一个三秒内有值
@@ -86,6 +93,9 @@ onMounted(() => {
   });
   fetchRemoteCPUInfo().then((data) => {
     cpuTableData.value = data;
+  });
+  fetchRemoteLoadInfo().then((data) => {
+    loadTableData.value = data;
   });
   setInterval(() => {
     nextTick(() => {
@@ -96,9 +106,12 @@ onMounted(() => {
         console.log(data);
         memTableData.value = data;
       });
+      fetchRemoteLoadInfo().then((data) => {
+        loadTableData.value = data;
+      });
       chartsOption.value.cpuChart.data = getCPUAverageUsage(cpuTableData.value).toFixed(2);
       chartsOption.value.memoryChart.data = getMemoryUsage(memTableData.value).toFixed(2);
-      chartsOption.value.loadChart.data = (Math.random() * 100).toFixed(2);
+      chartsOption.value.loadChart.data = getLoadUsage(loadTableData.value).toFixed(2);
       chartsOption.value.diskChart.data = (Math.random() * 100).toFixed(2);
     });
   }, 3000);

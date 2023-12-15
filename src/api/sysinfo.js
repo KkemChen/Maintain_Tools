@@ -46,12 +46,25 @@ const fetchRemoteMemoryInfo = async () => {
   }
 }
 
-
+const fetchRemoteLoadInfo = async () => {
+  try {
+    const response = await fetch(requestUrl + '/load_average');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching CPU info:', error);
+    throw error;
+  }
+}
 
 export const useSysinfo = () => {
   return {
     fetchCPUInfo,
     fetchRemoteCPUInfo,
-    fetchRemoteMemoryInfo
+    fetchRemoteMemoryInfo,
+    fetchRemoteLoadInfo
   }
 }
