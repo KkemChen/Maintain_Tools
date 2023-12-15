@@ -1,13 +1,12 @@
 import { invoke } from '@tauri-apps/api';
 
-// const requestUrl = 'http://' + localStorage.getItem(host) + ':9888';
-const requestUrl = 'http://' + '192.168.1.172' + ':9888';
+const requestUrl = `http://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_HTTP_PORT}`;
 
 const fetchCPUInfo = () => {
   return new Promise((resolve, reject) => {
     invoke('get_cpu_info')
-      .then((dataStr) => {
-        const data = JSON.parse(dataStr);
+      .then((res) => {
+        const data = JSON.parse(res);
         resolve(data)
       })
       .catch((error) => {
@@ -19,59 +18,59 @@ const fetchCPUInfo = () => {
 
 
 const fetchRemoteCPUInfo = async () => {
-  try {
-    const response = await fetch(requestUrl + '/cpus');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data.cpu_info;
-  } catch (error) {
-    console.error('Error fetching CPU info:', error);
-    throw error;
-  }
+  return new Promise((resolve, reject) => {
+    fetch(requestUrl + '/cpus')
+      .then(async res => {
+        const data = await res.json();
+        resolve(data.cpu_info)
+      })
+      .catch(error => {
+        console.error('Error fetching CPU info:', error);
+        reject(error)
+      })
+  })
 };
 
 const fetchRemoteMemoryInfo = async () => {
-  try {
-    const response = await fetch(requestUrl + '/memory');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching Memory info:', error);
-    throw error;
-  }
+  return new Promise((resolve, reject) => {
+    fetch(requestUrl + '/memory')
+      .then(async res => {
+        const data = await res.json();
+        resolve(data)
+      })
+      .catch(error => {
+        console.error('Error fetching Memory info:', error);
+        reject(error)
+      })
+  })
 }
 
 const fetchRemoteLoadInfo = async () => {
-  try {
-    const response = await fetch(requestUrl + '/load_average');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching Load info:', error);
-    throw error;
-  }
+  return new Promise((resolve, reject) => {
+    fetch(requestUrl + '/load_average')
+      .then(async res => {
+        const data = await res.json();
+        resolve(data)
+      })
+      .catch(error => {
+        console.error('Error fetching Load info:', error);
+        reject(error)
+      })
+  })
 }
 
 const fetchRemoteIoInfo = async () => {
-  try {
-    const response = await fetch(requestUrl + '/networks');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching Io info:', error);
-    throw error;
-  }
+  return new Promise((resolve, reject) => {
+    fetch(requestUrl + '/networks')
+      .then(async res => {
+        const data = await res.json();
+        resolve(data)
+      })
+      .catch(error => {
+        console.error('Error fetching Io info:', error);
+        reject(error)
+      })
+  })
 }
 
 

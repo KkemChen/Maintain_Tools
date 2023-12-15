@@ -19,15 +19,15 @@ const chartsOption = ref({
   },
   memoryChart: {
     title: 'Memory',
-    data: 65.89,
+    data: 0.0,
   },
   loadChart: {
     title: 'Load',
-    data: 65.89,
+    data: 0.0,
   },
   diskChart: {
     title: 'Disk',
-    data: 65.89,
+    data: 0.0,
   },
 });
 
@@ -85,9 +85,8 @@ const getLoadUsage = (loadData) => {
   }
   return 0.0;
 };
-onMounted(() => {
-  ssh_connect();
-  //先触发一次保证第一个三秒内有值
+
+const getRemoteInfo = () => {
   fetchRemoteMemoryInfo().then((data) => {
     memTableData.value = data;
   });
@@ -97,17 +96,15 @@ onMounted(() => {
   fetchRemoteLoadInfo().then((data) => {
     loadTableData.value = data;
   });
+};
+
+onMounted(() => {
+  ssh_connect();
+  //先触发一次保证第一个三秒内有值
+  getRemoteInfo();
   setInterval(() => {
     nextTick(() => {
-      fetchRemoteCPUInfo().then((data) => {
-        cpuTableData.value = data;
-      });
-      fetchRemoteMemoryInfo().then((data) => {
-        memTableData.value = data;
-      });
-      fetchRemoteLoadInfo().then((data) => {
-        loadTableData.value = data;
-      });
+      getRemoteInfo();
       chartsOption.value.cpuChart.data = getCPUAverageUsage(cpuTableData.value).toFixed(2);
       chartsOption.value.memoryChart.data = getMemoryUsage(memTableData.value).toFixed(2);
       chartsOption.value.loadChart.data = getLoadUsage(loadTableData.value).toFixed(2);
