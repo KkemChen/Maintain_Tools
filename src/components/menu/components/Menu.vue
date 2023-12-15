@@ -34,25 +34,26 @@ const toggleCollapse = () => {
     :collapse="isCollapse"
     @open="handleOpen"
     @close="handleClose"
+    router
   >
-    <el-menu-item index="1">
+    <el-menu-item index="/">
       <el-icon><HomeFilled /></el-icon>
       <template #title>Home</template>
     </el-menu-item>
-    <el-menu-item index="2">
+    <el-menu-item index="/tools">
       <el-icon><icon-menu /></el-icon>
       <template #title>Tools</template>
     </el-menu-item>
-    <el-menu-item index="3" disabled>
+    <el-menu-item index="/document">
       <el-icon><document /></el-icon>
       <template #title>Document</template>
     </el-menu-item>
-    <el-menu-item index="4">
+    <el-menu-item index="/setting">
       <el-icon><setting /></el-icon>
       <template #title>Setting</template>
     </el-menu-item>
 
-    <el-menu-item index="5" class="menu-item-bottom" @click="toggleCollapse">
+    <el-menu-item class="menu-item-bottom" @click="toggleCollapse">
       <el-icon v-if="isCollapse"><Expand /></el-icon>
       <el-icon v-else><Fold /></el-icon>
     </el-menu-item>
