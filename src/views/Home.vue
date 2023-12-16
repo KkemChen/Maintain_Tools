@@ -4,7 +4,7 @@ import DiskInfo from '@/components/sysinfo/DiskInfo.vue';
 import ProcessInfo from '@/components/sysinfo/ProcessInfo.vue';
 import Pie from '@/components/v-charts/index.vue';
 import IOInfo from '@/components/sysinfo/IOInfo.vue';
-import { ref, onMounted, nextTick, onUnmounted } from 'vue';
+import { ref, onMounted, nextTick, onUnmounted, watchEffect } from 'vue';
 import { invoke } from '@tauri-apps/api';
 import { useGlobalStore } from '@/store';
 
@@ -38,31 +38,31 @@ const cpuTableData = ref([]);
 const memTableData = ref([]);
 const loadTableData = ref([]);
 
-const ssh_connect = () => {
-  invoke('add_ssh_connect', {
-    host: localStorage.getItem('host') + ':' + localStorage.getItem('port'),
-    user: localStorage.getItem('user'),
-    password: localStorage.getItem('password'),
-  })
-    .then((response) => {
-      console.log('SSH connection initialized', response);
-    })
-    .catch((error) => {
-      console.error('Error fetching CPU info:', error);
-    });
-};
+// const ssh_connect = () => {
+//   invoke('add_ssh_connect', {
+//     host: localStorage.getItem('host') + ':' + localStorage.getItem('port'),
+//     user: localStorage.getItem('user'),
+//     password: localStorage.getItem('password'),
+//   })
+//     .then((response) => {
+//       console.log('SSH connection initialized', response);
+//     })
+//     .catch((error) => {
+//       console.error('Error fetching CPU info:', error);
+//     });
+// };
 
-const disconnect_ssh = () => {
-  invoke('disconnect_ssh', {
-    host: localStorage.getItem('host') + ':' + localStorage.getItem('port'),
-  })
-    .then((response) => {
-      console.log('Disconnect ssh success: ', response);
-    })
-    .catch((error) => {
-      console.error('Disconnect ssh failed: ', error);
-    });
-};
+// const disconnect_ssh = () => {
+//   invoke('disconnect_ssh', {
+//     host: localStorage.getItem('host') + ':' + localStorage.getItem('port'),
+//   })
+//     .then((response) => {
+//       console.log('Disconnect ssh success: ', response);
+//     })
+//     .catch((error) => {
+//       console.error('Disconnect ssh failed: ', error);
+//     });
+// };
 
 const getCPUAverageUsage = (cpuData) => {
   if (Array.isArray(cpuData) && cpuData.length > 0) {
@@ -97,22 +97,27 @@ const getRemoteInfo = async () => {
 };
 
 onMounted(() => {
-  ssh_connect();
-  //先触发一次保证第一个三秒内有值
-  getRemoteInfo();
-  setInterval(() => {
-    nextTick(() => {
+  // ssh_connect();
+  watchEffect(() => {
+    if (globalStore.isConnected) {
+      //先触发一次保证第一个三秒内有值
       getRemoteInfo();
-      chartsOption.value.cpuChart.data = getCPUAverageUsage(cpuTableData.value).toFixed(2);
-      chartsOption.value.memoryChart.data = getMemoryUsage(memTableData.value).toFixed(2);
-      chartsOption.value.loadChart.data = getLoadUsage(loadTableData.value).toFixed(2);
-      chartsOption.value.diskChart.data = (Math.random() * 100).toFixed(2);
-    });
-  }, 3000);
+      setInterval(() => {
+        nextTick(() => {
+          getRemoteInfo();
+          chartsOption.value.cpuChart.data = getCPUAverageUsage(cpuTableData.value).toFixed(2);
+          chartsOption.value.memoryChart.data = getMemoryUsage(memTableData.value).toFixed(2);
+          chartsOption.value.loadChart.data = getLoadUsage(loadTableData.value).toFixed(2);
+          chartsOption.value.diskChart.data = (Math.random() * 100).toFixed(2);
+        });
+      }, 3000);
+    }
+  });
 });
 
 onUnmounted(() => {
-  disconnect_ssh();
+  // disconnect_ssh();
+  globalStore.disconnectSsh();
 });
 </script>
 

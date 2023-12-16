@@ -9,11 +9,12 @@ const sshConnect = (host, port, user, password) => {
     })
       .then((response) => {
         console.log('SSH connection initialized', response);
-        resolve(response);
+        const data = JSON.parse(response);
+        resolve(data);
       })
       .catch((error) => {
         console.error('Error fetching CPU info:', error);
-        reject(response);
+        reject(error);
       });
   });
 };
@@ -29,7 +30,7 @@ const disconnectSsh = (host, port) => {
       })
       .catch((error) => {
         console.error('Disconnect ssh failed: ', error);
-        reject(response);
+        reject(error);
       });
   });
 };
