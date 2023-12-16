@@ -1,6 +1,7 @@
 use super::ssh_manager::*;
 use lazy_static::lazy_static;
 use serde::Deserialize;
+use serde_json::json;
 use std::collections::HashMap;
 use std::fs;
 use std::sync::{Arc, Mutex};
@@ -38,33 +39,36 @@ fn read_config() -> Config {
 }
 
 #[tauri::command]
-pub fn add_ssh_connect(host: &str, user: &str, password: &str) -> Result<(), String> {
+pub fn add_ssh_connect(host: &str, user: &str, password: &str) -> String {
     let config = read_config();
 
     let mut manager = SshConnectionManager::new();
-    manager
+
+    let result = manager
         .connect(host, user, password)
-        .map_err(|e| format!("Failed to connect: {}", e))?;
-    manager
-        .exec_command("pkill -9 sysinfo-http")
-        .map_err(|e| e.to_string())?;
+        .and_then(|_| manager.exec_command("pkill -9 sysinfo-http"))
+        .and_then(|_| manager.send_file(&config.local_path, &config.remote_path))
+        .and_then(|_| manager.exec_command("chmod +x /tmp/sysinfo-http"))
+        .and_then(|_| manager.exec_command("nohup /tmp/sysinfo-http > /dev/null 2>&1 &"));
 
-    manager
-        .send_file(&config.local_path, &config.remote_path)
-        .map_err(|e| format!("Failed to send file: {}", e))?;
+    match result {
+        Ok(_) => {
+            let mut map = SSHMAP.lock().unwrap();
+            map.insert(host.to_string(), manager);
+            println!("Add ssh connect success. {}", host);
 
-    manager
-        .exec_command("chmod +x /tmp/sysinfo-http")
-        .map_err(|e| e.to_string())?;
-
-    manager
-        .exec_command("nohup /tmp/sysinfo-http > /dev/null 2>&1 &")
-        .map_err(|e| format!("Failed to execute sysinfo-http command: {}", e))?;
-
-    let mut map = SSHMAP.lock().unwrap();
-    map.insert(host.to_string(), manager);
-    println!("Add ssh connect success. {}", host);
-    Ok(())
+            json!({
+                "code": 0,
+                "message": "Add ssh connect success.".to_string(),
+            })
+            .to_string()
+        }
+        Err(e) => json!({
+            "code": -1,
+            "message": format!("Failed: {}", e),
+        })
+        .to_string(),
+    }
 }
 
 #[tauri::command]
