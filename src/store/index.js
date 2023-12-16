@@ -1,12 +1,15 @@
 import { createPinia, defineStore } from 'pinia';
 import { useSysinfo } from '@/api/sysinfo';
+import { useSSH } from '@/api/ssh';
 
 const { fetchRemoteCPUInfo, fetchRemoteMemoryInfo, fetchRemoteLoadInfo, fetchRemoteIoInfo } = useSysinfo();
+const { sshConnect, disconnectSsh } = useSSH();
 
 export const useGlobalStore = defineStore({
   id: 'GlobalState',
   state: () => {
     return {
+      isConnected: false,
       remoteConfig: {
         host: '',
         port: 0,
@@ -24,12 +27,25 @@ export const useGlobalStore = defineStore({
   },
   getters: {},
   actions: {
+    getRemoteConfigStatus() {
+      return this.remoteConfig.host === '';
+    },
     async getSystemInfo() {
-      this.systemInfo.cpuInfo = await fetchRemoteCPUInfo();
-      this.systemInfo.memoryInfo = await fetchRemoteMemoryInfo();
-      this.systemInfo.loadInfo = await fetchRemoteLoadInfo();
-      this.systemInfo.networksInfo = await fetchRemoteIoInfo();
-      //Todo fetch Disk Info
+      if (this.isConnected) {
+        const requestUrl = `http://${this.remoteConfig.host}:${this.remoteConfig.sysInfoHttpPort}`;
+        this.systemInfo.cpuInfo = await fetchRemoteCPUInfo(requestUrl);
+        this.systemInfo.memoryInfo = await fetchRemoteMemoryInfo(requestUrl);
+        this.systemInfo.loadInfo = await fetchRemoteLoadInfo(requestUrl);
+        this.systemInfo.networksInfo = await fetchRemoteIoInfo(requestUrl);
+        //Todo fetch Disk Info
+      }
+    },
+    async getRemoteConnection() {
+      const res = await sshConnect(this.remoteConfig.host, this.remoteConfig.port, this.remoteConfig.user, this.remoteConfig.password);
+      if (res.code === 0) {
+        this.isConnected = true;
+      }
+      return res;
     },
     setRemoteConfig(host, port, user, password, sysInfoHttpPort = 9888) {
       this.remoteConfig = {
@@ -47,6 +63,9 @@ export const useGlobalStore = defineStore({
         loadInfo,
         networksInfo
       }
+    },
+    async disconnectSsh() {
+      await disconnectSsh(this.remoteConfig.host, this.remoteConfig.port);
     }
   }
 });
