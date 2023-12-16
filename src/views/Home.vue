@@ -14,7 +14,9 @@ import { useGlobalStore } from '@/store';
 
 const globalStore = useGlobalStore();
 
-const pieWidth = '200px';
+const pieWidth = ref(200);
+const pieHeight = ref(200);
+
 const chartsOption = ref({
   cpuChart: {
     title: 'CPU',
@@ -96,8 +98,38 @@ const getRemoteInfo = async () => {
   loadTableData.value = globalStore.systemInfo.loadInfo;
 };
 
+const resizePie = () => {
+  // 获取图表容器元素
+
+  let container = document.getElementById('pie-container');
+  if (!container) return;
+  adjustFlexPieItems();
+  console.log(container.offsetWidth);
+  // 计算新的宽度和高度为容器的 25%
+  nextTick(() => {
+    pieWidth.value = container.offsetWidth * 0.25;
+    pieHeight.value = container.offsetHeight * 1;
+  });
+};
+
+function adjustFlexPieItems() {
+  const container = document.querySelector('.flex-pie');
+  const items = container.children;
+  const itemCount = items.length;
+
+  for (let i = 0; i < itemCount; i++) {
+    items[i].style.position = 'absolute';
+    items[i].style.top = '0';
+    items[i].style.height = '100%';
+    items[i].style.left = `${(100 / itemCount) * i}%`;
+    items[i].style.width = `${100 / itemCount}%`;
+  }
+}
+
 onMounted(() => {
   // ssh_connect();
+  resizePie();
+  window.addEventListener('resize', resizePie);
   watchEffect(() => {
     if (globalStore.isConnected) {
       //先触发一次保证第一个三秒内有值
@@ -118,6 +150,7 @@ onMounted(() => {
 onUnmounted(() => {
   // disconnect_ssh();
   globalStore.disconnectSsh();
+  window.removeEventListener('resize', resizePie);
 });
 </script>
 
@@ -125,12 +158,12 @@ onUnmounted(() => {
   <el-row :gutter="10">
     <el-col :span="24">
       <div class="grid-content ep-bg-purple">
-        <el-card class="box-card">
+        <el-card class="box-card" id="pie-container">
           <div class="flex-pie">
-            <Pie id="cpu" :width="pieWidth" :option="chartsOption.cpuChart" />
-            <Pie id="memory" :width="pieWidth" :option="chartsOption.memoryChart" />
-            <Pie id="load" :width="pieWidth" :option="chartsOption.loadChart" />
-            <Pie id="disk" :width="pieWidth" :option="chartsOption.diskChart" />
+            <Pie id="cpu" :width="pieWidth + 'px'" :height="pieHeight + 'px'" :option="chartsOption.cpuChart" />
+            <Pie id="memory" :width="pieWidth + 'px'" :height="pieHeight + 'px'" :option="chartsOption.memoryChart" />
+            <Pie id="load" :width="pieWidth + 'px'" :height="pieHeight + 'px'" :option="chartsOption.loadChart" />
+            <Pie id="disk" :width="pieWidth + 'px'" :height="pieHeight + 'px'" :option="chartsOption.diskChart" />
           </div>
         </el-card>
       </div>
@@ -184,12 +217,29 @@ onUnmounted(() => {
         height: 100%;
         /* background-color: lightgreen; */
       }
+      // .flex-pie {
+      //   /* display: flex;
+      //   flex-direction: row;
+      //   justify-content: flex-start;
+      //   flex-wrap: nowrap;
+      //   height: 100%;
+      //   width: 100%; */
+      //   position: absolute;
+      //   height: 100%;
+      //   width: 100%;
+      // }
       .flex-pie {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        flex-wrap: nowrap;
+        position: relative;
+        height: 100%;
+        width: 100%;
+
+        > * {
+          position: absolute;
+          top: 0;
+          height: 100%;
+        }
       }
+
       :deep(.el-card__body) {
         padding: 0px !important;
         height: 100%;

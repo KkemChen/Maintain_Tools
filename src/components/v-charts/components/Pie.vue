@@ -16,7 +16,7 @@ const props = defineProps({
   },
   height: {
     type: String,
-    default: '200px',
+    default: '100%',
   },
   option: {
     type: Object,
@@ -134,7 +134,9 @@ function initChart() {
 }
 
 function changeChartSize() {
-  echarts.getInstanceByDom(document.getElementById(props.id) as HTMLElement)?.resize();
+  nextTick(() => {
+    echarts.getInstanceByDom(document.getElementById(props.id) as HTMLElement)?.resize();
+  });
 }
 
 watch(

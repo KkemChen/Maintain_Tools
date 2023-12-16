@@ -12,7 +12,7 @@ defineProps({
   },
   height: {
     type: String,
-    default: '200px',
+    default: '100%',
   },
   dataZoom: Boolean,
   option: {
