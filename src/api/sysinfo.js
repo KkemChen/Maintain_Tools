@@ -1,7 +1,5 @@
 import { invoke } from '@tauri-apps/api';
 
-const requestUrl = `http://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_HTTP_PORT}`;
-
 const fetchLocalCPUInfo = () => {
   return new Promise((resolve, reject) => {
     invoke('get_cpu_info')
@@ -17,7 +15,7 @@ const fetchLocalCPUInfo = () => {
 };
 
 
-const fetchRemoteCPUInfo = async () => {
+const fetchRemoteCPUInfo = async (requestUrl) => {
   return new Promise((resolve, reject) => {
     fetch(requestUrl + '/cpus')
       .then(async res => {
@@ -31,7 +29,7 @@ const fetchRemoteCPUInfo = async () => {
   })
 };
 
-const fetchRemoteMemoryInfo = async () => {
+const fetchRemoteMemoryInfo = async (requestUrl) => {
   return new Promise((resolve, reject) => {
     fetch(requestUrl + '/memory')
       .then(async res => {
@@ -45,7 +43,7 @@ const fetchRemoteMemoryInfo = async () => {
   })
 }
 
-const fetchRemoteLoadInfo = async () => {
+const fetchRemoteLoadInfo = async (requestUrl) => {
   return new Promise((resolve, reject) => {
     fetch(requestUrl + '/load_average')
       .then(async res => {
@@ -59,7 +57,7 @@ const fetchRemoteLoadInfo = async () => {
   })
 }
 
-const fetchRemoteIoInfo = async () => {
+const fetchRemoteIoInfo = async (requestUrl) => {
   return new Promise((resolve, reject) => {
     fetch(requestUrl + '/networks')
       .then(async res => {

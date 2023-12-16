@@ -1,7 +1,9 @@
 import { createPinia, defineStore } from 'pinia';
 import { useSysinfo } from '@/api/sysinfo';
+import { useSSH } from '@/api/ssh';
 
 const { fetchRemoteCPUInfo, fetchRemoteMemoryInfo, fetchRemoteLoadInfo, fetchRemoteIoInfo } = useSysinfo();
+const { sshConnect, disconnectSsh } = useSSH();
 
 export const useGlobalStore = defineStore({
   id: 'GlobalState',
@@ -25,11 +27,15 @@ export const useGlobalStore = defineStore({
   getters: {},
   actions: {
     async getSystemInfo() {
-      this.systemInfo.cpuInfo = await fetchRemoteCPUInfo();
-      this.systemInfo.memoryInfo = await fetchRemoteMemoryInfo();
-      this.systemInfo.loadInfo = await fetchRemoteLoadInfo();
-      this.systemInfo.networksInfo = await fetchRemoteIoInfo();
+      const requestUrl = `http://${this.host}:${this.port}`;
+      this.systemInfo.cpuInfo = await fetchRemoteCPUInfo(requestUrl);
+      this.systemInfo.memoryInfo = await fetchRemoteMemoryInfo(requestUrl);
+      this.systemInfo.loadInfo = await fetchRemoteLoadInfo(requestUrl);
+      this.systemInfo.networksInfo = await fetchRemoteIoInfo(requestUrl);
       //Todo fetch Disk Info
+    },
+    async getRemoteConnection() {
+      await sshConnect(this.remoteConfig.host, this.remoteConfig.port, this.remoteConfig.user, this.remoteConfig.password);
     },
     setRemoteConfig(host, port, user, password, sysInfoHttpPort = 9888) {
       this.remoteConfig = {
@@ -47,6 +53,9 @@ export const useGlobalStore = defineStore({
         loadInfo,
         networksInfo
       }
+    },
+    async disconnectSsh() {
+      await disconnectSsh(this.remoteConfig.host, this.remoteConfig.port);
     }
   }
 });
