@@ -6,10 +6,13 @@ import Pie from '@/components/v-charts/index.vue';
 import IOInfo from '@/components/sysinfo/IOInfo.vue';
 import { ref, onMounted, nextTick, onUnmounted } from 'vue';
 import { invoke } from '@tauri-apps/api';
+import { useGlobalStore } from '@/store';
 
-import { useSysinfo } from '@/api/sysinfo';
+// import { useSysinfo } from '@/api/sysinfo';
 
-const { fetchCPUInfo, fetchRemoteCPUInfo, fetchRemoteMemoryInfo, fetchRemoteLoadInfo } = useSysinfo();
+// const { fetchCPUInfo, fetchRemoteCPUInfo, fetchRemoteMemoryInfo, fetchRemoteLoadInfo } = useSysinfo();
+
+const globalStore = useGlobalStore();
 
 const pieWidth = '200px';
 const chartsOption = ref({
@@ -19,15 +22,15 @@ const chartsOption = ref({
   },
   memoryChart: {
     title: 'Memory',
-    data: 65.89,
+    data: 0.0,
   },
   loadChart: {
     title: 'Load',
-    data: 65.89,
+    data: 0.0,
   },
   diskChart: {
     title: 'Disk',
-    data: 65.89,
+    data: 0.0,
   },
 });
 
@@ -85,29 +88,21 @@ const getLoadUsage = (loadData) => {
   }
   return 0.0;
 };
+
+const getRemoteInfo = async () => {
+  await globalStore.getSystemInfo();
+  cpuTableData.value = globalStore.systemInfo.cpuInfo;
+  memTableData.value = globalStore.systemInfo.memoryInfo;
+  loadTableData.value = globalStore.systemInfo.loadInfo;
+};
+
 onMounted(() => {
   ssh_connect();
   //先触发一次保证第一个三秒内有值
-  fetchRemoteMemoryInfo().then((data) => {
-    memTableData.value = data;
-  });
-  fetchRemoteCPUInfo().then((data) => {
-    cpuTableData.value = data;
-  });
-  fetchRemoteLoadInfo().then((data) => {
-    loadTableData.value = data;
-  });
+  getRemoteInfo();
   setInterval(() => {
     nextTick(() => {
-      fetchRemoteCPUInfo().then((data) => {
-        cpuTableData.value = data;
-      });
-      fetchRemoteMemoryInfo().then((data) => {
-        memTableData.value = data;
-      });
-      fetchRemoteLoadInfo().then((data) => {
-        loadTableData.value = data;
-      });
+      getRemoteInfo();
       chartsOption.value.cpuChart.data = getCPUAverageUsage(cpuTableData.value).toFixed(2);
       chartsOption.value.memoryChart.data = getMemoryUsage(memTableData.value).toFixed(2);
       chartsOption.value.loadChart.data = getLoadUsage(loadTableData.value).toFixed(2);
