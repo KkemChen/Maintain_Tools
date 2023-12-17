@@ -31,7 +31,8 @@ const fetchDiskInfo = () => {
   invoke('get_disk_info', { host: localStorage.getItem('host') + ':' + localStorage.getItem('port') })
     .then((dataStr) => {
       // console.log(dataStr);
-      const data = JSON.parse(dataStr);
+      const json = JSON.parse(dataStr);
+      const data = JSON.parse(json.data);
       tableData.value = data.map((item: any) => ({
         Disk: item.name,
         MP: item.mounted_on,

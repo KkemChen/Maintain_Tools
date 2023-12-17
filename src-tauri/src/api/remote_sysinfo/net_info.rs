@@ -3,17 +3,45 @@ use crate::ssh::ssh_api::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-
+use std::thread;
+use std::time::Duration;
 #[derive(Serialize, Deserialize, Debug)]
 struct NetInfo {
     device: String,
-    receive: u64,
-    transmit: u64,
+    receive: f64,
+    transmit: f64,
 }
 
 fn get_net_info_l(host: &str) -> Result<String, String> {
-    let output = exec_ssh_command_on_shell(host, "cat /proc/net/dev")?;
-    // println!("{}", output);
+    // 第一次读取
+    let initial_output = exec_ssh_command_on_shell(host, "cat /proc/net/dev")?;
+    let initial_net_infos = parse_net_data(&initial_output)?;
+
+    thread::sleep(Duration::from_millis(200));
+
+    // 第二次读取
+    let final_output = exec_ssh_command_on_shell(host, "cat /proc/net/dev")?;
+    let final_net_infos = parse_net_data(&final_output)?;
+
+    // 计算瞬时流量
+    let mut net_infos = Vec::new();
+    for (initial, final_) in initial_net_infos.iter().zip(final_net_infos.iter()) {
+        let receive_rate = ((final_.receive - initial.receive) as f64) / 0.2; // 这里的时间间隔是 1 秒
+        let transmit_rate = ((final_.transmit - initial.transmit) as f64) / 0.2; // 同上
+
+        net_infos.push(NetInfo {
+            device: final_.device.clone(),
+            receive: receive_rate,
+            transmit: transmit_rate,
+        });
+    }
+
+    // 序列化为 JSON 字符串
+    let json = serde_json::to_string(&net_infos).map_err(|e| e.to_string())?;
+    Ok(json)
+}
+
+fn parse_net_data(output: &str) -> Result<Vec<NetInfo>, String> {
     let re =
         Regex::new(r"(\w+):\s+(\d+)\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)").unwrap();
 
@@ -35,15 +63,12 @@ fn get_net_info_l(host: &str) -> Result<String, String> {
                 .map_err(|e| e.to_string())?;
             net_infos.push(NetInfo {
                 device,
-                receive,
-                transmit,
+                receive: receive as f64,
+                transmit: transmit as f64,
             });
         }
     }
-
-    let json = serde_json::to_string(&net_infos).map_err(|e| e.to_string())?;
-    // println!("JSON output: {}", json);
-    Ok(json)
+    Ok(net_infos)
 }
 
 #[tauri::command]

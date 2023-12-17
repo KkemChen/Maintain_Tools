@@ -68,7 +68,7 @@ const loadTableData = ref([]);
 
 const getCPUAverageUsage = (cpuData) => {
   if (Array.isArray(cpuData) && cpuData.length > 0) {
-    const totalUsage = cpuData.reduce((sum, cpu) => sum + cpu.percent, 0);
+    const totalUsage = cpuData.reduce((sum, cpu) => sum + cpu.useage, 0);
     const averageUsage = totalUsage / cpuData.length;
     return averageUsage;
   }
@@ -86,7 +86,7 @@ const getMemoryUsage = (memData) => {
 
 const getLoadUsage = (loadData) => {
   if (Array.isArray(loadData) && loadData.length > 0) {
-    return loadData[0].one;
+    return loadData[0];
   }
   return 0.0;
 };
@@ -104,7 +104,7 @@ const resizePie = () => {
   let container = document.getElementById('pie-container');
   if (!container) return;
   adjustFlexPieItems();
-  console.log(container.offsetWidth);
+  // console.log(container.offsetWidth);
   // 计算新的宽度和高度为容器的 25%
   nextTick(() => {
     pieWidth.value = container.offsetWidth * 0.25;

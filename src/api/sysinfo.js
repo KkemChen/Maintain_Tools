@@ -21,7 +21,6 @@ const fetchRemoteCPUInfo = async (remoteHost) => {
       .then((res) => {
         const json = JSON.parse(res);
         const data = JSON.parse(json.data);
-        console.log(data);
         resolve(data)
       })
       .catch((error) => {
@@ -32,45 +31,50 @@ const fetchRemoteCPUInfo = async (remoteHost) => {
 };
 
 const fetchRemoteMemoryInfo = async (remoteHost) => {
-  /* return new Promise((resolve, reject) => {
-    fetch(remoteHost + '/memory')
-      .then(async res => {
-        const data = await res.json();
-        resolve(data)
+  return new Promise((resolve, reject) => {
+    invoke('get_disk_info', { host: remoteHost })
+      .then((res) => {
+        const json = JSON.parse(res);
+        // const data = JSON.parse(json.data);
+        resolve(json.data)
       })
-      .catch(error => {
-        console.error('Error fetching Memory info:', error);
+      .catch((error) => {
+        console.error('Error fetching CPU info:', error);
         reject(error)
-      })
-  }) */
+      });
+  });
 }
 
 const fetchRemoteLoadInfo = async (remoteHost) => {
-  /* return new Promise((resolve, reject) => {
-    fetch(remoteHost + '/load_average')
-      .then(async res => {
-        const data = await res.json();
-        resolve(data)
+  return new Promise((resolve, reject) => {
+    invoke('get_total_info', { host: remoteHost })
+      .then((res) => {
+        const json = JSON.parse(res);
+        const data = JSON.parse(json.data);
+
+        resolve(data.load_info)
       })
-      .catch(error => {
-        console.error('Error fetching Load info:', error);
+      .catch((error) => {
+        console.error('Error fetching IO info:', error);
         reject(error)
-      })
-  }) */
+      });
+  });
 }
 
 const fetchRemoteIoInfo = async (remoteHost) => {
-  /*  return new Promise((resolve, reject) => {
-     fetch(remoteHost + '/networks')
-       .then(async res => {
-         const data = await res.json();
-         resolve(data)
-       })
-       .catch(error => {
-         console.error('Error fetching Io info:', error);
-         reject(error)
-       })
-   }) */
+  return new Promise((resolve, reject) => {
+    invoke('get_net_info', { host: remoteHost })
+      .then((res) => {
+        const json = JSON.parse(res);
+        const data = JSON.parse(json.data);
+        // console.log(data);
+        resolve(data)
+      })
+      .catch((error) => {
+        console.error('Error fetching IO info:', error);
+        reject(error)
+      });
+  });
 }
 
 

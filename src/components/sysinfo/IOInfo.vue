@@ -23,7 +23,7 @@ onMounted(() => {
   }
 
   intervalId = setInterval(() => {
-    fetchRemoteIoInfo()
+    fetchRemoteIoInfo(localStorage.getItem('host') + ':' + localStorage.getItem('port'))
       .then((data) => {
         updateChartData(data);
       })
@@ -48,8 +48,8 @@ const updateChartData = (newData) => {
   let totalInputData = 0;
   let totalOutputData = 0;
   newData.forEach((item) => {
-    totalInputData += item.data_received;
-    totalOutputData += item.data_transmitted;
+    totalInputData += item.receive / 8;
+    totalOutputData += item.transmit / 8;
   });
 
   // 移除第一个元素并添加新计算的数据到末尾
