@@ -11,45 +11,15 @@ lazy_static! {
     static ref SSHMAP: Mutex<HashMap<String, SshConnectionManager>> = Mutex::new(HashMap::new());
 }
 
-#[derive(Deserialize)]
-struct Config {
-    local_path: String,
-    remote_path: String,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Config {
-            local_path: "plugins/sysinfo-http".to_string(),
-            remote_path: "/tmp/sysinfo-http".to_string(),
-        }
-    }
-}
-
-fn read_config() -> Config {
-    let config_str = match fs::read_to_string("config.toml") {
-        Ok(contents) => contents,
-        Err(_) => return Config::default(),
-    };
-
-    match toml::from_str(&config_str) {
-        Ok(config) => config,
-        Err(_) => Config::default(),
-    }
-}
-
 #[tauri::command]
 pub fn add_ssh_connect(host: &str, user: &str, password: &str) -> String {
-    let config = read_config();
-
     let mut manager = SshConnectionManager::new();
 
-    let result = manager
-        .connect(host, user, password)
-        .and_then(|_| manager.exec_command("pkill -9 sysinfo-http"))
-        .and_then(|_| manager.send_file(&config.local_path, &config.remote_path))
-        .and_then(|_| manager.exec_command("chmod +x /tmp/sysinfo-http"))
-        .and_then(|_| manager.exec_command("nohup /tmp/sysinfo-http > /dev/null 2>&1 &"));
+    let result = manager.connect(host, user, password);
+    // .and_then(|_| manager.exec_command("pkill -9 sysinfo-http"))
+    // .and_then(|_| manager.send_file(&config.local_path, &config.remote_path))
+    // .and_then(|_| manager.exec_command("chmod +x /tmp/sysinfo-http"))
+    // .and_then(|_| manager.exec_command("nohup /tmp/sysinfo-http > /dev/null 2>&1 &"));
 
     match result {
         Ok(_) => {
@@ -99,61 +69,85 @@ pub fn exec_ssh_command_on_shell(host: &str, command: &str) -> Result<String, St
 
 #[tauri::command]
 pub fn disconnect_ssh(host: &str) -> Result<String, String> {
-    let map = SSHMAP.lock().unwrap();
-    if let Some(manager) = map.get(host) {
-        match manager.exec_command("pkill -9 sysinfo-http") {
-            Ok(output) => Ok(output),
-            Err(err) => Err(format!("Failed to execute command: {:?}", err)),
-        }
+    let mut map = SSHMAP.lock().unwrap();
+    if map.contains_key(host) {
+        map.remove(host);
+        Ok(format!("Disconnected SSH for host {}", host))
     } else {
         Err(format!("Manager for specified host not found, {}", host))
     }
 }
 
 pub fn disconnect_all() -> Result<String, String> {
-    let map = SSHMAP.lock().unwrap();
-    let mut result = String::new();
-
-    for (_host, manager) in map.iter() {
-        match manager.exec_command("pkill -9 sysinfo-http") {
-            Ok(output) => result.push_str(&format!("{}: Disconnect success\n", _host)),
-            Err(err) => result.push_str(&format!(
-                "{}: Failed to execute command: {:?}\n",
-                _host, err
-            )),
-        }
-    }
-    Ok(result)
+    let mut map = SSHMAP.lock().unwrap();
+    map.clear(); // 清空 HashMap
+    Ok("Disconnectd all SSH".to_string())
 }
 
 #[cfg(test)]
 mod test {
-    use std::{thread, time::Duration};
-
     use super::*;
+    use dotenv::dotenv;
+    use std::env;
+    use std::{thread, time::Duration};
 
     #[test]
     fn test_add_ssh_connect() {
-        add_ssh_connect("192.168.1.172:6622", "root", "ivauto@123");
+        dotenv::from_path("../.env").ok();
+
+        let host = env::var("VITE_HOST").unwrap();
+        let port = env::var("VITE_PORT").unwrap();
+        let user = env::var("VITE_USER").unwrap();
+        let passwd = env::var("VITE_PASSWORD").unwrap();
+
+        add_ssh_connect(
+            format!("{}:{}", host, port).as_str(),
+            user.as_str(),
+            passwd.as_str(),
+        );
     }
 
     #[test]
     fn test_disconnect() {
-        add_ssh_connect("192.168.1.172:6622", "root", "ivauto@123");
+        dotenv::from_path("../.env").ok();
+
+        let host = env::var("VITE_HOST").unwrap();
+        let port = env::var("VITE_PORT").unwrap();
+        let user = env::var("VITE_USER").unwrap();
+        let passwd = env::var("VITE_PASSWORD").unwrap();
+
+        add_ssh_connect(
+            format!("{}:{}", host, port).as_str(),
+            user.as_str(),
+            passwd.as_str(),
+        );
         thread::sleep(Duration::from_secs(10));
-        disconnect_ssh("192.168.1.172:6622");
+        disconnect_ssh(format!("{}:{}", host, port).as_str());
     }
 
     #[test]
     fn test_exec_command() {
-        add_ssh_connect("192.168.1.172:5523", "root", "ivauto@123");
+        dotenv::from_path("../.env").ok();
+
+        let host = env::var("VITE_HOST").unwrap();
+        let port = env::var("VITE_PORT").unwrap();
+        let user = env::var("VITE_USER").unwrap();
+        let passwd = env::var("VITE_PASSWORD").unwrap();
+
+        add_ssh_connect(
+            format!("{}:{}", host, port).as_str(),
+            user.as_str(),
+            passwd.as_str(),
+        );
         let out = exec_ssh_command_on_shell(
-            "192.168.1.172:5523",
-            "timeout 10 ffprobe -v quiet -print_format json -show_format -show_streams rtsp://192.168.1.82/live/66",
+            format!("{}:{}", host, port).as_str(),
+            // "timeout 10 ffprobe -v quiet -print_format json -show_format -show_streams rtsp://192.168.1.82/live/66",
+            "timeout 10 top -b -n 1",
         )
         .unwrap();
 
         println!("xxx: {}", out);
-        disconnect_ssh("192.168.1.172:5523");
+
+        disconnect_ssh(format!("{}:{}", host, port).as_str());
     }
 }

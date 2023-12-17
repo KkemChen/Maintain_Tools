@@ -89,14 +89,27 @@ impl SshConnectionManager {
 
 #[cfg(test)]
 mod tests {
-    use std::{thread, time::Duration};
-
     use super::*;
+    use dotenv::dotenv;
+    use std::env;
+    use std::{thread, time::Duration};
 
     #[test]
     fn test_ssh_manager() {
+        dotenv::from_path("../.env").ok();
+
         let mut manager = SshConnectionManager::new();
-        manager.connect("192.168.1.172:6622", "root", "ivauto@123");
+
+        let host = env::var("VITE_HOST").unwrap();
+        let port = env::var("VITE_PORT").unwrap();
+        let user = env::var("VITE_USER").unwrap();
+        let passwd = env::var("VITE_PASSWORD").unwrap();
+
+        manager.connect(
+            format!("{}:{}", host, port).as_str(),
+            user.as_str(),
+            passwd.as_str(),
+        );
 
         let output = manager.exec_command("ls").unwrap();
         println!("Output: {}", output);
@@ -106,8 +119,20 @@ mod tests {
 
     #[test]
     fn test_send_file() {
+        dotenv::from_path("../.env").ok();
+
+        let host = env::var("VITE_HOST").unwrap();
+        let port = env::var("VITE_PORT").unwrap();
+        let user = env::var("VITE_USER").unwrap();
+        let passwd = env::var("VITE_PASSWORD").unwrap();
+
         let mut manager = SshConnectionManager::new();
-        manager.connect("192.168.1.172:6622", "root", "ivauto@123");
+
+        manager.connect(
+            format!("{}:{}", host, port).as_str(),
+            user.as_str(),
+            passwd.as_str(),
+        );
         manager.send_file("C:\\Users\\Administrator\\Desktop\\1.txt", "/1.txt");
         manager.disconnect();
     }

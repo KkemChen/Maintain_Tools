@@ -1,2 +1,0 @@
-local_path = "plugins/sysinfo-http"
-remote_path = "/tmp/sysinfo-http"
