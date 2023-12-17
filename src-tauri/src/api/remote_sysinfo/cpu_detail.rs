@@ -3,8 +3,8 @@ use crate::ssh::ssh_api::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::thread;
-use std::time::Duration;
+use tokio::time::{sleep, Duration};
+
 #[derive(Serialize, Deserialize, Debug)]
 struct CpuDetail {
     index: u32,
@@ -70,12 +70,12 @@ fn parse_cpu_times(output: &str) -> Result<Vec<CpuTime>, String> {
     Ok(cpu_times)
 }
 
-fn get_cpu_detail_l(host: &str) -> Result<String, String> {
+async fn get_cpu_detail_l(host: &str) -> Result<String, String> {
     let initial_output = exec_ssh_command_on_shell(host, "cat /proc/stat")?;
     let initial_cpu_times = parse_cpu_times(&initial_output)?;
 
     // 等待一段时间
-    thread::sleep(Duration::from_millis(300));
+    sleep(Duration::from_millis(300)).await;
 
     // 第二次读取 /proc/stat
     let final_output = exec_ssh_command_on_shell(host, "cat /proc/stat")?;
@@ -105,8 +105,8 @@ fn get_cpu_detail_l(host: &str) -> Result<String, String> {
 }
 
 #[tauri::command]
-pub fn get_cpu_detail(host: &str) -> Result<String, String> {
-    match get_cpu_detail_l(host) {
+pub async fn get_cpu_detail(host: &str) -> Result<String, String> {
+    match get_cpu_detail_l(host).await {
         Ok(data) => {
             let response = Response {
                 code: 0,

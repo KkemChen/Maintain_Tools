@@ -3,8 +3,7 @@ use crate::ssh::ssh_api::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::thread;
-use std::time::Duration;
+use tokio::time::{sleep, Duration};
 #[derive(Serialize, Deserialize, Debug)]
 struct NetInfo {
     device: String,
@@ -12,13 +11,13 @@ struct NetInfo {
     transmit: f64,
 }
 
-fn get_net_info_l(host: &str) -> Result<String, String> {
+async fn get_net_info_l(host: &str) -> Result<String, String> {
     // 第一次读取
     let initial_output = exec_ssh_command_on_shell(host, "cat /proc/net/dev")?;
     let initial_net_infos = parse_net_data(&initial_output)?;
 
-    thread::sleep(Duration::from_millis(200));
-
+    // thread::sleep(Duration::from_millis(200));
+    sleep(Duration::from_millis(300)).await;
     // 第二次读取
     let final_output = exec_ssh_command_on_shell(host, "cat /proc/net/dev")?;
     let final_net_infos = parse_net_data(&final_output)?;
@@ -72,8 +71,8 @@ fn parse_net_data(output: &str) -> Result<Vec<NetInfo>, String> {
 }
 
 #[tauri::command]
-pub fn get_net_info(host: &str) -> Result<String, String> {
-    match get_net_info_l(host) {
+pub async fn get_net_info(host: &str) -> Result<String, String> {
+    match get_net_info_l(host).await {
         Ok(data) => {
             let response = Response {
                 code: 0,
