@@ -32,7 +32,7 @@ export const useGlobalStore = defineStore({
     },
     async getSystemInfo() {
       if (this.isConnected) {
-        const requestUrl = `http://${this.remoteConfig.host}:${this.remoteConfig.sysInfoHttpPort}`;
+        const requestUrl = `${this.remoteConfig.host}:${this.remoteConfig.port}`;
         this.systemInfo.cpuInfo = await fetchRemoteCPUInfo(requestUrl);
         this.systemInfo.memoryInfo = await fetchRemoteMemoryInfo(requestUrl);
         this.systemInfo.loadInfo = await fetchRemoteLoadInfo(requestUrl);
