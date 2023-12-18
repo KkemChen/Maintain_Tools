@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
-use serde_json::error::Error as SerdeError;
-use sysinfo::{CpuExt, CpuRefreshKind, NetworkExt, NetworksExt, ProcessExt, System, SystemExt};
+use sysinfo::{CpuExt, CpuRefreshKind, System, SystemExt};
 
 #[derive(Serialize, Deserialize)]
 struct CpuInfo {

@@ -1,11 +1,8 @@
 use super::ssh_manager::*;
 use lazy_static::lazy_static;
-use serde::Deserialize;
 use serde_json::json;
 use std::collections::HashMap;
-use std::fs;
-use std::sync::{Arc, Mutex};
-use toml;
+use std::sync::Mutex;
 
 lazy_static! {
     static ref SSHMAP: Mutex<HashMap<String, SshConnectionManager>> = Mutex::new(HashMap::new());

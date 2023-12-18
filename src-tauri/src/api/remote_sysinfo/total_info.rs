@@ -2,7 +2,6 @@ use super::Response;
 use crate::ssh::ssh_api::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ProcessInfo {

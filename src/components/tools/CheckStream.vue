@@ -116,5 +116,6 @@ onMounted(() => {
   margin-left: 10%;
   margin-top: 5%;
   height: 50vh;
+  white-space: pre-wrap;
 }
 </style>

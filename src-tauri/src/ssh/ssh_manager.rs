@@ -1,13 +1,10 @@
 use ssh2::Session;
 
 use std::error::Error;
-use std::fs::Metadata;
 use std::io::prelude::*;
 use std::io::Read;
-use std::net::TcpListener;
 use std::net::TcpStream;
 use std::path::Path;
-use std::sync::{Arc, Mutex};
 pub struct SshConnectionManager {
     session: Option<Session>,
 }
@@ -47,7 +44,7 @@ impl SshConnectionManager {
             let mut channel = session.channel_session()?;
             channel.exec(command)?;
             let mut s = String::new();
-            channel.read_to_string(&mut s);
+            channel.read_to_string(&mut s)?;
             channel.wait_close()?;
             Ok(s)
         } else {
@@ -59,9 +56,9 @@ impl SshConnectionManager {
         if let Some(session) = &self.session {
             let mut channel = session.channel_session()?;
             channel.request_pty("xterm", None, Some((800, 600, 0, 0)))?;
-            channel.exec(command);
+            channel.exec(command)?;
             let mut s = String::new();
-            channel.read_to_string(&mut s);
+            channel.read_to_string(&mut s)?;
             channel.wait_close()?;
             Ok(s)
         } else {
@@ -71,7 +68,7 @@ impl SshConnectionManager {
 
     pub fn send_file(&self, local_path: &str, remote_path: &str) -> Result<(), Box<dyn Error>> {
         if let Some(session) = &self.session {
-            let mut sftp = session.sftp()?;
+            let sftp = session.sftp()?;
 
             let mut file = std::fs::File::open(local_path)?;
             let metadata = file.metadata()?;
@@ -79,7 +76,7 @@ impl SshConnectionManager {
             file.read_to_end(&mut contents)?;
 
             let mut remote_file = sftp.create(Path::new(remote_path))?;
-            remote_file.write_all(&contents);
+            remote_file.write_all(&contents)?;
             Ok(())
         } else {
             Err("Send file failed".into())
