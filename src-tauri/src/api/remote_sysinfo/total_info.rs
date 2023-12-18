@@ -2,6 +2,7 @@ use super::Response;
 use crate::ssh::ssh_api::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use tokio::task;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ProcessInfo {
@@ -36,11 +37,13 @@ struct SystemInfo {
     load_info: LoadInfo,
 }
 
-pub fn get_total_info_l(host: &str) -> Result<String, String> {
-    let mut process_infos = Vec::new();
+pub async fn get_total_info_l(host: &str) -> Result<String, String> {
+    let host_clone = host.to_string();
+    match task::spawn_blocking(move || {
+        let mut process_infos = Vec::new();
 
     {
-        let output = exec_ssh_command_on_shell(host, "top -b -n 1")?;
+        let output = exec_ssh_command_on_shell(host_clone.as_str(), "top -b -n 1")?;
         // println!("{}", output);
 
         let process_re = Regex::new(
@@ -63,7 +66,7 @@ pub fn get_total_info_l(host: &str) -> Result<String, String> {
     let mut cpu_total_info: CpuInfo;
     // CPU 总体信息
     {
-        let output = exec_ssh_command(host, "vmstat")?;
+        let output = exec_ssh_command(host_clone.as_str(), "vmstat")?;
 
         let cpu_re = Regex::new(
             r"\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)\s+(\d+)\s+\d+\s+\d+\s+\d",
@@ -82,7 +85,7 @@ pub fn get_total_info_l(host: &str) -> Result<String, String> {
     let mut mem_info: MemInfo;
     // 内存信息
     {
-        let output = exec_ssh_command(host, "free -m")?;
+        let output = exec_ssh_command(host_clone.as_str(), "free -m")?;
 
         let mem_re = Regex::new(r"\bMem:\s+(\d+)\s+(\d+)\s+(\d+)").unwrap();
         let mem_caps = mem_re.captures(&output).ok_or("No memory data found")?;
@@ -98,7 +101,7 @@ pub fn get_total_info_l(host: &str) -> Result<String, String> {
     let mut load_info: LoadInfo;
 
     {
-        let output = exec_ssh_command(host, "uptime")?;
+        let output = exec_ssh_command(host_clone.as_str(), "uptime")?;
 
         let load_re = Regex::new(r"load average: (\d+\.\d+), (\d+\.\d+), (\d+\.\d+)").unwrap();
         let load_caps = load_re.captures(&output).ok_or("No load data found")?;
@@ -117,11 +120,17 @@ pub fn get_total_info_l(host: &str) -> Result<String, String> {
     .map_err(|e| e.to_string())?;
     // println!("JSON output: {}", json);
     Ok(json)
+    })
+    .await
+    {
+        Ok(result) => result,
+        Err(join_error) => Err(join_error.to_string()),
+    }
 }
 
 #[tauri::command]
-pub fn get_total_info(host: &str) -> Result<String, String> {
-    match get_total_info_l(host) {
+pub async fn get_total_info(host: &str) -> Result<String, String> {
+    match get_total_info_l(host).await {
         Ok(data) => {
             let response = Response {
                 code: 0,
