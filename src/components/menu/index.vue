@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watchEffect } from 'vue';
+import { ref, onBeforeUnmount, watchEffect } from 'vue';
 import {
   Document,
   Menu as IconMenu,
@@ -39,12 +39,23 @@ const modifyConnectionStatus = (status) => {
   connectionStatus.value = status;
 };
 
-watchEffect(() => {
+let hasReloaded = false;
+const navigationEntries = window.performance.getEntriesByType('navigation');
+const unwatch = watchEffect(() => {
   if (globalStore.isConnected) {
     connectionStatus.value = 2;
   } else {
     connectionStatus.value = 0;
   }
+  if (!hasReloaded && navigationEntries.length > 0 && navigationEntries[0].type === 'reload') {
+    globalStore.getRemoteConnection();
+    hasReloaded = true;
+  }
+});
+
+// 在组件被销毁前执行清理操作
+onBeforeUnmount(() => {
+  unwatch();
 });
 </script>
 

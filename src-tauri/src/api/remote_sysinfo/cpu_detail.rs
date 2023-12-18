@@ -7,7 +7,7 @@ use tokio::time::{sleep, Duration};
 #[derive(Serialize, Deserialize, Debug)]
 struct CpuDetail {
     index: u32,
-    useage: f64,
+    usage: f64,
 }
 struct CpuTime {
     index: usize,
@@ -94,7 +94,7 @@ async fn get_cpu_detail_l(host: &str) -> Result<String, String> {
 
         cpu_details.push(CpuDetail {
             index: final_.index as u32,
-            useage: usage,
+            usage: usage,
         });
     }
 

@@ -16,9 +16,9 @@ struct ProcessInfo {
 }
 #[derive(Serialize, Deserialize, Debug)]
 struct CpuInfo {
-    user_useage: f32,
-    sys_useage: f32,
-    useage: f32,
+    user_usage: f32,
+    sys_usage: f32,
+    usage: f32,
 }
 #[derive(Serialize, Deserialize, Debug)]
 struct MemInfo {
@@ -76,9 +76,9 @@ pub async fn get_total_info_l(host: &str) -> Result<String, String> {
         let sys_usage = cpu_caps[2].parse::<f32>().map_err(|e| e.to_string())? / 100.0;
 
         cpu_total_info = CpuInfo {
-            user_useage: user_usage,
-            sys_useage: sys_usage,
-            useage: user_usage + sys_usage, // 将 user_usage 和 sys_usage 相加
+            user_usage: user_usage,
+            sys_usage: sys_usage,
+            usage: user_usage + sys_usage, // 将 user_usage 和 sys_usage 相加
         };
     }
 

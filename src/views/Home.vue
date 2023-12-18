@@ -5,12 +5,7 @@ import ProcessInfo from '@/components/sysinfo/ProcessInfo.vue';
 import Pie from '@/components/v-charts/index.vue';
 import IOInfo from '@/components/sysinfo/IOInfo.vue';
 import { ref, onMounted, nextTick, onUnmounted, watchEffect } from 'vue';
-import { invoke } from '@tauri-apps/api';
 import { useGlobalStore } from '@/store';
-
-// import { useSysinfo } from '@/api/sysinfo';
-
-// const { fetchCPUInfo, fetchRemoteCPUInfo, fetchRemoteMemoryInfo, fetchRemoteLoadInfo } = useSysinfo();
 
 const globalStore = useGlobalStore();
 
@@ -39,36 +34,13 @@ const chartsOption = ref({
 const cpuTableData = ref([]);
 const memTableData = ref([]);
 const loadTableData = ref([]);
-
-// const ssh_connect = () => {
-//   invoke('add_ssh_connect', {
-//     host: localStorage.getItem('host') + ':' + localStorage.getItem('port'),
-//     user: localStorage.getItem('user'),
-//     password: localStorage.getItem('password'),
-//   })
-//     .then((response) => {
-//       console.log('SSH connection initialized', response);
-//     })
-//     .catch((error) => {
-//       console.error('Error fetching CPU info:', error);
-//     });
-// };
-
-// const disconnect_ssh = () => {
-//   invoke('disconnect_ssh', {
-//     host: localStorage.getItem('host') + ':' + localStorage.getItem('port'),
-//   })
-//     .then((response) => {
-//       console.log('Disconnect ssh success: ', response);
-//     })
-//     .catch((error) => {
-//       console.error('Disconnect ssh failed: ', error);
-//     });
-// };
+const netTableData = ref([]);
+const diskTableData = ref([]);
+const processTableData = ref([]);
 
 const getCPUAverageUsage = (cpuData) => {
   if (Array.isArray(cpuData) && cpuData.length > 0) {
-    const totalUsage = cpuData.reduce((sum, cpu) => sum + cpu.useage, 0);
+    const totalUsage = cpuData.reduce((sum, cpu) => sum + cpu.usage, 0);
     const averageUsage = totalUsage / cpuData.length;
     return averageUsage;
   }
@@ -76,10 +48,9 @@ const getCPUAverageUsage = (cpuData) => {
 };
 
 const getMemoryUsage = (memData) => {
-  if (Array.isArray(memData) && memData.length > 0) {
-    const totalSize = memData[0].total_memory;
-    const useage = memData[0].used_memory / totalSize;
-    return useage;
+  if (memData.used && memData.total) {
+    const usage = (memData.used / memData.total) * 100;
+    return usage;
   }
   return 0.0;
 };
@@ -96,15 +67,16 @@ const getRemoteInfo = async () => {
   cpuTableData.value = globalStore.systemInfo.cpuInfo;
   memTableData.value = globalStore.systemInfo.memoryInfo;
   loadTableData.value = globalStore.systemInfo.loadInfo;
+  netTableData.value = globalStore.systemInfo.networksInfo;
+  diskTableData.value = globalStore.systemInfo.diskInfo;
+  processTableData.value = globalStore.systemInfo.processInfo;
 };
 
 const resizePie = () => {
   // 获取图表容器元素
-
   let container = document.getElementById('pie-container');
   if (!container) return;
   adjustFlexPieItems();
-  // console.log(container.offsetWidth);
   // 计算新的宽度和高度为容器的 25%
   nextTick(() => {
     pieWidth.value = container.offsetWidth * 0.25;
@@ -127,7 +99,6 @@ function adjustFlexPieItems() {
 }
 
 onMounted(() => {
-  // ssh_connect();
   resizePie();
   window.addEventListener('resize', resizePie);
   watchEffect(() => {
@@ -148,8 +119,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  // disconnect_ssh();
-  // globalStore.disconnectSsh();
   window.removeEventListener('resize', resizePie);
 });
 </script>
@@ -180,14 +149,14 @@ onUnmounted(() => {
     <el-col :span="8">
       <div class="grid-content ep-bg-purple">
         <el-card class="box-card">
-          <DiskInfo />
+          <DiskInfo :option="diskTableData" />
         </el-card>
       </div>
     </el-col>
     <el-col :span="8">
       <div class="grid-content ep-bg-purple">
         <el-card class="box-card">
-          <IOInfo />
+          <IOInfo :option="netTableData" />
         </el-card>
       </div>
     </el-col>
@@ -196,7 +165,7 @@ onUnmounted(() => {
     <el-col :span="24">
       <div class="grid-content ep-bg-purple">
         <el-card class="box-card">
-          <ProcessInfo />
+          <ProcessInfo :option="processTableData" />
         </el-card>
       </div>
     </el-col>

@@ -8,7 +8,7 @@ interface TableDataItem {
 
 const props = defineProps({
   option: {
-    type: Array,
+    type: Array<TableDataItem>,
     default: () => [],
   },
 });
@@ -43,7 +43,7 @@ const updateColumnWidths = () => {
 const assignCPUInfo = () => {
   tableData.value = props.option.map((item, index) => ({
     index: `CPU${index}`,
-    usage: Math.floor((item as TableDataItem).useage),
+    usage: Math.floor(item.usage),
   }));
 };
 

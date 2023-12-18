@@ -1,11 +1,21 @@
 <script lang="ts" setup>
 import * as echarts from 'echarts';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
-import { useSysinfo } from '@/api/sysinfo';
 
-const { fetchRemoteIoInfo } = useSysinfo();
+interface TableDataItem {
+  device: string;
+  receive: string | number;
+  transmit: string | number;
+}
 
-let myChart;
+const props = defineProps({
+  option: {
+    type: Array<TableDataItem>,
+    default: () => [],
+  },
+});
+
+let myChart: echarts.ECharts;
 
 const chartData = ref({
   xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
@@ -23,15 +33,7 @@ onMounted(() => {
   }
 
   intervalId = setInterval(() => {
-    fetchRemoteIoInfo(localStorage.getItem('host') + ':' + localStorage.getItem('port'))
-      .then((data) => {
-        updateChartData(data);
-      })
-      .catch((error) => {
-        console.error('Error fetching Io info:', error);
-      });
-
-    updateChart();
+    updateChartData(props.option);
   }, 3000);
 
   const resizeChart = () => {
@@ -43,11 +45,11 @@ onMounted(() => {
   window.addEventListener('resize', resizeChart);
 });
 
-const updateChartData = (newData) => {
+const updateChartData = (newData: any[]) => {
   // 计算新的 inputData 和 outputData
   let totalInputData = 0;
   let totalOutputData = 0;
-  newData.forEach((item) => {
+  newData.forEach((item: { receive: number; transmit: number }) => {
     totalInputData += item.receive;
     totalOutputData += item.transmit;
   });
