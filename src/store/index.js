@@ -2,7 +2,7 @@ import { createPinia, defineStore } from 'pinia';
 import { useSysinfo } from '@/api/sysinfo';
 import { useSSH } from '@/api/ssh';
 
-const { fetchRemoteCPUInfo, fetchRemoteMemoryInfo, fetchRemoteLoadInfo, fetchRemoteIoInfo } = useSysinfo();
+const { fetchRemoteCPUInfo, fetchRemoteMemoryInfo, fetchRemoteLoadInfo, fetchRemoteIoInfo, fetchRemoteDiskInfo, fetchRemoteProcessInfo } = useSysinfo();
 const { sshConnect, disconnectSsh } = useSSH();
 
 export const useGlobalStore = defineStore({
@@ -21,14 +21,16 @@ export const useGlobalStore = defineStore({
         cpuInfo: [],
         memoryInfo: [],
         loadInfo: [],
-        networksInfo: []
+        networksInfo: [],
+        processInfo: [],
+        diskInfo: []
       }
     }
   },
   getters: {},
   actions: {
     getRemoteConfigStatus() {
-      return this.remoteConfig.host === '';
+      return this.remoteConfig.host.trim() === '';
     },
     async getSystemInfo() {
       if (this.isConnected) {
@@ -37,15 +39,23 @@ export const useGlobalStore = defineStore({
         this.systemInfo.memoryInfo = await fetchRemoteMemoryInfo(requestUrl);
         this.systemInfo.loadInfo = await fetchRemoteLoadInfo(requestUrl);
         this.systemInfo.networksInfo = await fetchRemoteIoInfo(requestUrl);
-        //Todo fetch Disk Info
+        this.systemInfo.processInfo = await fetchRemoteProcessInfo(requestUrl);
+        this.systemInfo.diskInfo = await fetchRemoteDiskInfo(requestUrl);
       }
     },
     async getRemoteConnection() {
-      const res = await sshConnect(this.remoteConfig.host, this.remoteConfig.port, this.remoteConfig.user, this.remoteConfig.password);
-      if (res.code === 0) {
-        this.isConnected = true;
+      if (this.getRemoteConfigStatus()) {
+        this.remoteConfig = JSON.parse(localStorage.getItem('remoteConfig'));
       }
-      return res;
+      if (this.remoteConfig) {
+        const res = await sshConnect(this.remoteConfig.host, this.remoteConfig.port, this.remoteConfig.user, this.remoteConfig.password);
+        if (res.code === 0) {
+          this.isConnected = true;
+        }
+        return res;
+      }
+      console.error('Local host value is null.');
+      return { code: -1, message: 'Please check your host, it\'s null.' };
     },
     setRemoteConfig(host, port, user, password, sysInfoHttpPort = 9888) {
       this.remoteConfig = {
@@ -55,6 +65,7 @@ export const useGlobalStore = defineStore({
         password,
         sysInfoHttpPort
       };
+      localStorage.setItem('remoteConfig', JSON.stringify(this.remoteConfig));
     },
     setSystemInfo(cpuInfo, memoryInfo, loadInfo, networksInfo) {
       this.systemInfo = {
@@ -66,6 +77,7 @@ export const useGlobalStore = defineStore({
     },
     async disconnectSsh() {
       await disconnectSsh(this.remoteConfig.host, this.remoteConfig.port);
+      this.isConnected = false;
     }
   }
 });

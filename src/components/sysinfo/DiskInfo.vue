@@ -1,6 +1,28 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { invoke } from '@tauri-apps/api';
+
+interface TableDataItem {
+  name: string;
+  mounted_on: string;
+  size: string;
+  used: string;
+  avail: string;
+}
+
+const props = defineProps({
+  option: {
+    type: Array<TableDataItem>,
+    default: () => [],
+  },
+});
+
+const tableData = ref<TableDataItem[]>([
+  // { Disk: 'sda3', MP: '/', Size: 908, Used: 63, Avail: 844 },
+  // { Disk: 'sda2', MP: '/boot', Size: 240, Used: 63, Avail: 177 },
+  // { Disk: 'sda1', MP: '/srv', Size: 908, Used: 63, Avail: 844 },
+  // { Disk: 'sda0', MP: '/tmp', Size: 240, Used: 63, Avail: 177 },
+]);
+
 // 计算每列的宽度
 const ColumnWidth = ref('');
 
@@ -12,48 +34,23 @@ const updateColumnWidth = () => {
   }
 };
 
-interface TableDataItem {
-  Disk: string;
-  MP: string;
-  Size: string;
-  Used: string;
-  Avail: string;
-}
-
-const tableData = ref<TableDataItem[]>([
-  // { Disk: 'sda3', MP: '/', Size: 908, Used: 63, Avail: 844 },
-  // { Disk: 'sda2', MP: '/boot', Size: 240, Used: 63, Avail: 177 },
-  // { Disk: 'sda1', MP: '/srv', Size: 908, Used: 63, Avail: 844 },
-  // { Disk: 'sda0', MP: '/tmp', Size: 240, Used: 63, Avail: 177 },
-]);
-
-const fetchDiskInfo = () => {
-  invoke('get_disk_info', { host: localStorage.getItem('host') + ':' + localStorage.getItem('port') })
-    .then((dataStr) => {
-      // console.log(dataStr);
-      const json = JSON.parse(dataStr);
-      const data = JSON.parse(json.data);
-      tableData.value = data.map((item: any) => ({
-        Disk: item.name,
-        MP: item.mounted_on,
-        Size: item.size,
-        Used: item.used,
-        Avail: item.avail,
-      }));
-      // console.log(tableData.value);
-    })
-    .catch((error) => {
-      console.error('Error fetching disk info:', error);
-    });
+const assignDiskInfo = () => {
+  tableData.value = props.option.map((item, index) => ({
+    name: item.name,
+    mounted_on: item.mounted_on,
+    size: item.size,
+    used: item.used,
+    avail: item.avail,
+  }));
 };
 
 let intervalId: number | undefined;
 
 onMounted(() => {
   updateColumnWidth();
-  fetchDiskInfo();
+  assignDiskInfo();
   intervalId = setInterval(() => {
-    fetchDiskInfo(); // 定时获取 disk 信息
+    assignDiskInfo(); // 定时获取 disk 信息
   }, 3000);
   window.addEventListener('resize', updateColumnWidth);
 });
@@ -75,11 +72,11 @@ onUnmounted(() => {
     :cell-style="{ padding: '0px' }"
     id="Disk-Info"
   >
-    <el-table-column prop="Disk" label="Disk" :width="ColumnWidth" />
-    <el-table-column prop="MP" label="MP" :width="ColumnWidth" />
-    <el-table-column prop="Size" label="Size" :width="ColumnWidth" />
-    <el-table-column prop="Used" label="Used" :width="ColumnWidth" />
-    <el-table-column prop="Avail" label="Avail" :width="ColumnWidth" />
+    <el-table-column prop="name" label="Disk" :width="ColumnWidth" />
+    <el-table-column prop="mounted_on" label="MP" :width="ColumnWidth" />
+    <el-table-column prop="size" label="Size" :width="ColumnWidth" />
+    <el-table-column prop="used" label="Used" :width="ColumnWidth" />
+    <el-table-column prop="avail" label="Avail" :width="ColumnWidth" />
   </el-table>
 </template>
 

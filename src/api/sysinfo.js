@@ -26,9 +26,9 @@ const fetchRemoteCPUInfo = async (remoteHost) => {
 
 const fetchRemoteMemoryInfo = async (remoteHost) => {
   try {
-    const res = await invoke('get_disk_info', { host: remoteHost });
+    const res = await invoke('get_total_info', { host: remoteHost });
     const json = JSON.parse(res);
-    return json.data;
+    return JSON.parse(json.data).mem_info;
   } catch (error) {
     console.error('Error fetching Memory info:', error);
     throw error;
@@ -61,6 +61,28 @@ const fetchRemoteIoInfo = async (remoteHost) => {
   }
 }
 
+const fetchRemoteDiskInfo = async (remoteHost) => {
+  try {
+    const res = await invoke('get_disk_info', { host: remoteHost });
+    const json = JSON.parse(res);
+    const data = JSON.parse(json.data);
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching Disk info:', error);
+  }
+}
+
+const fetchRemoteProcessInfo = async (remoteHost) => {
+  try {
+    const res = await invoke('get_process_info', { host: remoteHost });
+    const data = JSON.parse(res);
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching Process info:', error);
+  }
+}
 
 export const useSysinfo = () => {
   return {
@@ -68,6 +90,8 @@ export const useSysinfo = () => {
     fetchRemoteCPUInfo,
     fetchRemoteMemoryInfo,
     fetchRemoteLoadInfo,
-    fetchRemoteIoInfo
+    fetchRemoteIoInfo,
+    fetchRemoteDiskInfo,
+    fetchRemoteProcessInfo
   }
 }
