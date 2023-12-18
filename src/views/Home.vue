@@ -149,7 +149,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   // disconnect_ssh();
-  globalStore.disconnectSsh();
+  // globalStore.disconnectSsh();
   window.removeEventListener('resize', resizePie);
 });
 </script>
