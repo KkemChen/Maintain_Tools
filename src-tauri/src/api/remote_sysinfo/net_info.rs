@@ -17,7 +17,7 @@ async fn get_net_info_l(host: &str) -> Result<String, String> {
     let initial_net_infos = parse_net_data(&initial_output)?;
 
     // thread::sleep(Duration::from_millis(200));
-    sleep(Duration::from_millis(300)).await;
+    sleep(Duration::from_millis(3000)).await;
     // 第二次读取
     let final_output = exec_ssh_command_on_shell(host, "cat /proc/net/dev")?;
     let final_net_infos = parse_net_data(&final_output)?;
@@ -25,8 +25,8 @@ async fn get_net_info_l(host: &str) -> Result<String, String> {
     // 计算瞬时流量
     let mut net_infos = Vec::new();
     for (initial, final_) in initial_net_infos.iter().zip(final_net_infos.iter()) {
-        let receive_rate = ((final_.receive - initial.receive) as f64) / 0.2; // 这里的时间间隔是 1 秒
-        let transmit_rate = ((final_.transmit - initial.transmit) as f64) / 0.2; // 同上
+        let receive_rate = ((final_.receive - initial.receive) as f64) / 3.0 / 1024.0; // 这里的时间间隔是 1 秒
+        let transmit_rate = ((final_.transmit - initial.transmit) as f64) / 3.0 / 1024.0; // 同上
 
         net_infos.push(NetInfo {
             device: final_.device.clone(),

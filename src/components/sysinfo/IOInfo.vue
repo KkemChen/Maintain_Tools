@@ -9,8 +9,8 @@ let myChart;
 
 const chartData = ref({
   xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  inputData: [120, 132, 101, 134, 90, 230, 210],
-  outputData: [220, 182, 191, 234, 290, 330, 310],
+  inputData: [0, 0, 0, 0, 0, 0, 0],
+  outputData: [0, 0, 0, 0, 0, 0, 0],
 });
 
 let intervalId: number | undefined;
@@ -48,8 +48,8 @@ const updateChartData = (newData) => {
   let totalInputData = 0;
   let totalOutputData = 0;
   newData.forEach((item) => {
-    totalInputData += item.receive / 8;
-    totalOutputData += item.transmit / 8;
+    totalInputData += item.receive;
+    totalOutputData += item.transmit;
   });
 
   // 移除第一个元素并添加新计算的数据到末尾
