@@ -57,6 +57,6 @@ const onSubmit = () => {
 .item-box {
   margin-left: 10%;
   margin-top: 5%;
-  height: 300px;
+  height: 50vh;
 }
 </style>
