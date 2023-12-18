@@ -37,59 +37,76 @@ struct SystemInfo {
 }
 
 pub fn get_total_info_l(host: &str) -> Result<String, String> {
-    let output = exec_ssh_command_on_shell(host, "top -b -n 1")?;
-    // println!("{}", output);
+    let mut process_infos = Vec::new();
 
-    let process_re = Regex::new(
+    {
+        let output = exec_ssh_command_on_shell(host, "top -b -n 1")?;
+        // println!("{}", output);
+
+        let process_re = Regex::new(
         r"(?m)^\s*(\d+)\s+(\S+)\s+\d+\s+\d+\s+(\S+)\s+(\S+)\s+\S+\s+\S+\s+(\S+)\s+(\S+)\s+\S+\s+(.+)$",
     ).map_err(|e| e.to_string())?;
 
-    let mut process_infos = Vec::new();
-
-    for cap in process_re.captures_iter(&output) {
-        process_infos.push(ProcessInfo {
-            pid: cap[1].to_string(),
-            user: cap[2].to_string(),
-            virt: cap[3].to_string(),
-            res: cap[4].to_string(),
-            cpu: cap[5].to_string(),
-            mem: cap[6].to_string(),
-            command: cap[7].to_string(),
-        });
+        for cap in process_re.captures_iter(&output) {
+            process_infos.push(ProcessInfo {
+                pid: cap[1].to_string(),
+                user: cap[2].to_string(),
+                virt: cap[3].to_string(),
+                res: cap[4].to_string(),
+                cpu: cap[5].to_string(),
+                mem: cap[6].to_string(),
+                command: cap[7].to_string(),
+            });
+        }
     }
 
+    let mut cpu_total_info: CpuInfo;
     // CPU 总体信息
-    let cpu_re = Regex::new(r"%Cpu\(s\):\s+(\d+\.\d+) us,\s+(\d+\.\d+) sy").unwrap();
-    let cpu_caps = cpu_re.captures(&output).ok_or("No CPU data found")?;
-    let user_usage_result = cpu_caps[1].parse::<f32>().map_err(|e| e.to_string());
-    let sys_usage_result = cpu_caps[2].parse::<f32>().map_err(|e| e.to_string());
+    {
+        let output = exec_ssh_command(host, "vmstat")?;
 
-    let user_usage = user_usage_result?;
-    let sys_usage = sys_usage_result?;
+        let cpu_re = Regex::new(
+            r"\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)\s+(\d+)\s+\d+\s+\d+\s+\d",
+        ).unwrap();
+        let cpu_caps = cpu_re.captures(&output).ok_or("No CPU data found")?;
+        let user_usage = cpu_caps[1].parse::<f32>().map_err(|e| e.to_string())? / 100.0;
+        let sys_usage = cpu_caps[2].parse::<f32>().map_err(|e| e.to_string())? / 100.0;
 
-    let cpu_total_info = CpuInfo {
-        user_useage: user_usage,
-        sys_useage: sys_usage,
-        useage: user_usage + sys_usage, // 将 user_usage 和 sys_usage 相加
-    };
+        cpu_total_info = CpuInfo {
+            user_useage: user_usage,
+            sys_useage: sys_usage,
+            useage: user_usage + sys_usage, // 将 user_usage 和 sys_usage 相加
+        };
+    }
 
+    let mut mem_info: MemInfo;
     // 内存信息
-    let mem_re = Regex::new(r"KiB Mem :\s+(\d+) total,\s+(\d+) free,\s+(\d+) used").unwrap();
-    let mem_caps = mem_re.captures(&output).ok_or("No memory data found")?;
-    let mem_info = MemInfo {
-        total: mem_caps[1].parse::<u32>().map_err(|e| e.to_string())?,
-        free: mem_caps[2].parse::<u32>().map_err(|e| e.to_string())?,
-        used: mem_caps[3].parse::<u32>().map_err(|e| e.to_string())?,
-    };
+    {
+        let output = exec_ssh_command(host, "free -m")?;
+
+        let mem_re = Regex::new(r"\bMem:\s+(\d+)\s+(\d+)\s+(\d+)").unwrap();
+        let mem_caps = mem_re.captures(&output).ok_or("No memory data found")?;
+        let total = mem_caps[1].parse::<u32>().map_err(|e| e.to_string())?;
+        let used = mem_caps[2].parse::<u32>().map_err(|e| e.to_string())?;
+        let free = mem_caps[3].parse::<u32>().map_err(|e| e.to_string())?;
+        // let available = mem_caps[4].parse::<u32>().map_err(|e| e.to_string())?;
+
+        mem_info = MemInfo { used, free, total };
+    }
 
     // 负载信息
-    let load_re = Regex::new(r"load average: (\d+\.\d+), (\d+\.\d+), (\d+\.\d+)").unwrap();
-    let load_caps = load_re.captures(&output).ok_or("No load data found")?;
-    let load_info = LoadInfo(
-        load_caps[1].parse::<f32>().map_err(|e| e.to_string())?,
-        load_caps[2].parse::<f32>().map_err(|e| e.to_string())?,
-        load_caps[3].parse::<f32>().map_err(|e| e.to_string())?,
-    );
+    let mut load_info: LoadInfo;
+
+    {
+        let output = exec_ssh_command(host, "uptime")?;
+
+        let load_re = Regex::new(r"load average: (\d+\.\d+), (\d+\.\d+), (\d+\.\d+)").unwrap();
+        let load_caps = load_re.captures(&output).ok_or("No load data found")?;
+        let load1 = load_caps[1].parse::<f32>().map_err(|e| e.to_string())?;
+        let load5 = load_caps[2].parse::<f32>().map_err(|e| e.to_string())?;
+        let load15 = load_caps[3].parse::<f32>().map_err(|e| e.to_string())?;
+        load_info = LoadInfo(load1, load5, load15);
+    }
 
     let json = serde_json::to_string(&SystemInfo {
         process_info: process_infos,
@@ -98,7 +115,7 @@ pub fn get_total_info_l(host: &str) -> Result<String, String> {
         load_info: load_info,
     })
     .map_err(|e| e.to_string())?;
-    //  println!("JSON output: {}", json);
+    // println!("JSON output: {}", json);
     Ok(json)
 }
 
@@ -147,7 +164,13 @@ mod test {
             passwd.as_str(),
         );
 
-        get_total_info(format!("{}:{}", host, port).as_str());
+        match get_total_info(format!("{}:{}", host, port).as_str()) {
+            Ok(res) => println!("success: {}", res),
+            Err(err) => {
+                println!("{}", err.to_string())
+            }
+        }
+
         disconnect_ssh(format!("{}:{}", host, port).as_str());
     }
 }
