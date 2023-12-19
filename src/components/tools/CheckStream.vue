@@ -2,6 +2,9 @@
 import { reactive, computed, ref, watch, onMounted } from 'vue';
 import { Check, Select, MoreFilled, CloseBold, Close } from '@element-plus/icons-vue';
 import { Icon } from '@iconify/vue';
+import { useSysinfo } from '@/api/sysinfo';
+const { checkStream } = useSysinfo();
+
 // do not use same name with ref
 const form = reactive({
   name: '',
@@ -53,9 +56,10 @@ const onSubmit = async () => {
     activity.color = '#409EFF';
     activity.icon = MoreFilled;
     try {
-      //   const response = await fetch('your-api-url');
-      //   const data = await response.json();
-      const data = test2;
+      const res = await checkStream('192.168.1.172:6622', 'rtsp://kkem.me:1554/live/test');
+      console.log(res);
+
+      const data = res;
       activity.color = data.code === 0 ? '#67C23A' : '#F56C6C';
       activity.icon = data.code === 0 ? Select : CloseBold;
     } catch (error) {

@@ -18,3 +18,10 @@ root:
   level: info
   appenders:
     - stdout
+
+loggers:
+  tao:
+    level: error
+    appenders:
+      - stdout
+    additive: false

@@ -70,7 +70,6 @@ const fetchRemoteDiskInfo = async (remoteHost) => {
   try {
     const res = await invoke('get_disk_info', { host: remoteHost });
     const json = JSON.parse(res);
-    console.log(json.data);
     return json.data;
   } catch (error) {
     console.error('Error fetching Disk info:', error);
@@ -87,6 +86,17 @@ const fetchRemoteProcessInfo = async (remoteHost) => {
   }
 }
 
+const checkStream = async (remoteHost, url) => {
+  try {
+    const res = await invoke('check_stream', { host: remoteHost, url: url });
+    const json = JSON.parse(res);
+    return json;
+  } catch (error) {
+    console.error('Error fetching Process info:', error);
+  }
+}
+
+
 export const useSysinfo = () => {
   return {
     fetchLocalCPUInfo,
@@ -96,6 +106,7 @@ export const useSysinfo = () => {
     fetchRemoteIoInfo,
     fetchRemoteDiskDetail,
     fetchRemoteProcessInfo,
-    fetchRemoteDiskInfo
+    fetchRemoteDiskInfo,
+    checkStream
   }
 }
