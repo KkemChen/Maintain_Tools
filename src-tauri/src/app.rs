@@ -1,3 +1,4 @@
+use log::*;
 pub fn create_app<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::App<R> {
     builder
         .invoke_handler(tauri::generate_handler![
@@ -21,7 +22,7 @@ pub fn create_app<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::App<R
 
 pub fn cleanup_on_exit() {
     match crate::ssh::ssh_api::disconnect_all() {
-        Ok(result) => println!("{}", result),
-        Err(e) => println!("Error: {}", e),
+        Ok(result) => info!("{}", result),
+        Err(e) => error!("Error: {}", e),
     }
 }

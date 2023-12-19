@@ -64,7 +64,7 @@ const getLoadUsage = (loadData) => {
 };
 
 const getDiskUsage = (diskData) => {
-  if (diskData) {
+  if (diskData > 0) {
     return parseFloat(diskData);
   }
   return 0.0;

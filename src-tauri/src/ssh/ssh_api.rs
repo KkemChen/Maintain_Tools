@@ -1,9 +1,9 @@
 use super::ssh_manager::*;
 use lazy_static::lazy_static;
+use log::*;
 use serde_json::json;
 use std::collections::HashMap;
 use std::sync::Mutex;
-
 lazy_static! {
     static ref SSHMAP: Mutex<HashMap<String, SshConnectionManager>> = Mutex::new(HashMap::new());
 }
@@ -22,7 +22,7 @@ pub fn add_ssh_connect(host: &str, user: &str, password: &str) -> String {
         Ok(_) => {
             let mut map = SSHMAP.lock().unwrap();
             map.insert(host.to_string(), manager);
-            println!("Add ssh connect success. {}", host);
+            info!("Add ssh connect success. {}", host);
 
             json!({
                 "code": 0,
