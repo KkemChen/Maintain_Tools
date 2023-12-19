@@ -183,7 +183,7 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .el-row {
-  height: calc((calc(95%) - 15px) / 3);
+  height: calc((calc(100%) - 15px) / 3);
   margin-bottom: 5px;
   .el-col {
     height: 100%;

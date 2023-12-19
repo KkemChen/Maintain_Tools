@@ -15,7 +15,7 @@ import Menu from './components/menu/index.vue';
         <Info />
       </el-aside> -->
       <el-main>
-        <el-header>Header</el-header>
+        <!-- <el-header></el-header> -->
         <router-view></router-view>
       </el-main>
     </el-container>
