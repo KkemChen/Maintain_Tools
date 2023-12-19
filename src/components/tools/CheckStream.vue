@@ -26,6 +26,7 @@ interface Activity {
   video: [];
   audio: [];
   tagColor: string;
+  loading: Boolean;
 }
 
 const activities = ref<Activity[]>([]);
@@ -40,6 +41,7 @@ const initActivities = () => {
     video: [],
     audio: [],
     tagColor: 'info',
+    loading: false,
   }));
 };
 
@@ -49,18 +51,21 @@ const setSuccessStatus = (activity) => {
   activity.color = '#67C23A';
   activity.icon = Select;
   activity.tagColor = 'success';
+  activity.loading = false;
 };
 
 const setFailedStatus = (activity) => {
   activity.color = '#F56C6C';
   activity.icon = CloseBold;
   activity.tagColor = 'danger';
+  activity.loading = false;
 };
 
 const setProcesstatus = (activity) => {
   activity.color = '#409EFF';
   activity.icon = MoreFilled;
   activity.tagColor = '';
+  activity.loading = true;
 };
 
 const onSubmit = async () => {
@@ -178,12 +183,16 @@ onMounted(() => {
                 {{ activity.content }}
               </el-tag>
             </template>
-            <div v-for="(stream, streamIndex) in activity.video" :key="streamIndex">
-              {{ formatStreamInfo(stream) }}
-            </div>
-            <div v-for="(stream, streamIndex) in activity.audio" :key="streamIndex">
-              {{ formatStreamInfo(stream) }}
-            </div>
+            <el-skeleton :rows="1" :animated="activity.loading">
+              <template #template>
+                <div v-for="(stream, streamIndex) in activity.video" :key="streamIndex">
+                  {{ formatStreamInfo(stream) }}
+                </div>
+                <div v-for="(stream, streamIndex) in activity.audio" :key="streamIndex">
+                  {{ formatStreamInfo(stream) }}
+                </div>
+              </template>
+            </el-skeleton>
           </el-card>
         </el-timeline-item>
       </el-timeline>
@@ -211,5 +220,9 @@ onMounted(() => {
 
 .item-tag {
   font-size: 15px;
+}
+
+.el-loading-mask {
+  height: auto;
 }
 </style>
