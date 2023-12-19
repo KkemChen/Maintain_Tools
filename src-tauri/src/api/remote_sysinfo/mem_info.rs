@@ -1,19 +1,33 @@
 use super::Response;
 use crate::ssh::ssh_api::*;
 use log::error;
+use regex::Regex;
+use serde::{Deserialize, Serialize};
 
-fn get_disk_info_l(host: &str) -> Result<String, String> {
-    let command =
-        "df --output=pcent | awk \'NR>1 {sum+=$1; count++} END {print sum/count \" % \"}\'";
+#[derive(Serialize, Deserialize, Debug)]
+pub struct MemInfo {
+    used: u32,
+    free: u32,
+    total: u32,
+}
 
-    let output = exec_ssh_command(host, command)?;
+fn get_mem_info_l(host: &str) -> Result<MemInfo, String> {
+    // 内存信息
+    let output = exec_ssh_command(host, "free -m")?;
 
-    Ok(output.trim().to_string())
+    let mem_re = Regex::new(r"\bMem:\s+(\d+)\s+(\d+)\s+(\d+)").unwrap();
+    let mem_caps = mem_re.captures(&output).ok_or("No memory data found")?;
+    let total = mem_caps[1].parse::<u32>().map_err(|e| e.to_string())?;
+    let used = mem_caps[2].parse::<u32>().map_err(|e| e.to_string())?;
+    let free = mem_caps[3].parse::<u32>().map_err(|e| e.to_string())?;
+    // let available = mem_caps[4].parse::<u32>().map_err(|e| e.to_string())?;
+    let mem_info = MemInfo { used, free, total };
+    Ok(mem_info)
 }
 
 #[tauri::command]
-pub fn get_disk_info(host: &str) -> Result<String, String> {
-    match get_disk_info_l(host) {
+pub fn get_mem_info(host: &str) -> Result<String, String> {
+    match get_mem_info_l(host) {
         Ok(data) => {
             let response = Response {
                 code: 0,
@@ -28,10 +42,8 @@ pub fn get_disk_info(host: &str) -> Result<String, String> {
                 message: err.clone(),
                 data: None,
             };
-            error!("get_disk_info failed, err: {}", err);
+            error!("get_mem_info failed, err: {}", err);
             serde_json::to_string(&response).map_err(|e| e.to_string())
-            /*  error!("get_disk_info failed, err: {}", err);
-            Err(err) // 直接返回错误 */
         }
     }
 }
@@ -60,7 +72,7 @@ mod test {
             passwd.as_str(),
         );
 
-        let ret = get_disk_info(format!("{}:{}", host, port).as_str()).unwrap();
+        let ret = get_mem_info(format!("{}:{}", host, port).as_str()).unwrap();
         info!("{}", ret);
         disconnect_ssh(format!("{}:{}", host, port).as_str());
     }

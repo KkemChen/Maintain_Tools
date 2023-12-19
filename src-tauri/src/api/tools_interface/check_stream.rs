@@ -162,7 +162,7 @@ mod test {
         );
         let result = check_stream(
             format!("{}:{}", host, port,).as_str(),
-            "rtsp://kkem.me:1554/live/test6",
+            "rtsp://kkem.me:1554/live/test",
         )
         .await;
         println!("{}", result.unwrap());

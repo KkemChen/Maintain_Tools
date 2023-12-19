@@ -1,19 +1,42 @@
 use super::Response;
 use crate::ssh::ssh_api::*;
 use log::error;
+use regex::Regex;
+use serde::{Deserialize, Serialize};
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DiskInfo {
+    name: String,
+    size: String,
+    used: String,
+    avail: String,
+    use_percentage: String,
+    mounted_on: String,
+}
 
-fn get_disk_info_l(host: &str) -> Result<String, String> {
-    let command =
-        "df --output=pcent | awk \'NR>1 {sum+=$1; count++} END {print sum/count \" % \"}\'";
+fn get_disk_detail_l(host: &str) -> Result<Vec<DiskInfo>, String> {
+    let output = exec_ssh_command(host, "df -h")?;
+    let re = Regex::new(
+        r"(?m)^(?P<name>\S+)\s+(?P<size>\S+)\s+(?P<used>\S+)\s+(?P<avail>\S+)\s+(?P<use_percentage>\S+%)\s+(?P<mounted_on>\S+)$"
+    ).map_err(|e| e.to_string())?;
 
-    let output = exec_ssh_command(host, command)?;
+    let mut disk_infos = Vec::new();
 
-    Ok(output.trim().to_string())
+    for cap in re.captures_iter(&output) {
+        disk_infos.push(DiskInfo {
+            name: cap["name"].to_string(),
+            size: cap["size"].to_string(),
+            used: cap["used"].to_string(),
+            avail: cap["avail"].to_string(),
+            use_percentage: cap["use_percentage"].to_string(),
+            mounted_on: cap["mounted_on"].to_string(),
+        });
+    }
+    Ok(disk_infos)
 }
 
 #[tauri::command]
-pub fn get_disk_info(host: &str) -> Result<String, String> {
-    match get_disk_info_l(host) {
+pub fn get_disk_detail(host: &str) -> Result<String, String> {
+    match get_disk_detail_l(host) {
         Ok(data) => {
             let response = Response {
                 code: 0,
@@ -28,7 +51,7 @@ pub fn get_disk_info(host: &str) -> Result<String, String> {
                 message: err.clone(),
                 data: None,
             };
-            error!("get_disk_info failed, err: {}", err);
+            error!("get_disk_detail failed, err: {}", err);
             serde_json::to_string(&response).map_err(|e| e.to_string())
             /*  error!("get_disk_info failed, err: {}", err);
             Err(err) // 直接返回错误 */
@@ -60,8 +83,15 @@ mod test {
             passwd.as_str(),
         );
 
-        let ret = get_disk_info(format!("{}:{}", host, port).as_str()).unwrap();
-        info!("{}", ret);
+        match get_disk_detail(format!("{}:{}", host, port).as_str()) {
+            Ok(res) => {
+                info!("{}", res);
+            }
+            Err(err) => {
+                error!("{}", err);
+            }
+        };
+
         disconnect_ssh(format!("{}:{}", host, port).as_str());
     }
 }

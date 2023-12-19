@@ -8,7 +8,7 @@ struct CpuInfo {
 }
 
 #[tauri::command]
-pub fn get_cpu_info() -> Result<String, String> {
+pub fn get_cpu_info_local() -> Result<String, String> {
     let mut sys = System::new_all();
     // sys.refresh_cpu();
     sys.refresh_cpu_specifics(CpuRefreshKind::everything());

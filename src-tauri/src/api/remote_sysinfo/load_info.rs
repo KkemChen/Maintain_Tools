@@ -1,19 +1,36 @@
 use super::Response;
 use crate::ssh::ssh_api::*;
 use log::error;
+use regex::Regex;
+use serde::{Deserialize, Serialize};
 
-fn get_disk_info_l(host: &str) -> Result<String, String> {
-    let command =
-        "df --output=pcent | awk \'NR>1 {sum+=$1; count++} END {print sum/count \" % \"}\'";
+#[derive(Serialize, Deserialize, Debug)]
+pub struct LoadInfo {
+    load1: f32,
+    load5: f32,
+    load15: f32,
+}
 
-    let output = exec_ssh_command(host, command)?;
+fn get_load_info_l(host: &str) -> Result<LoadInfo, String> {
+    let output = exec_ssh_command(host, "uptime")?;
 
-    Ok(output.trim().to_string())
+    let load_re = Regex::new(r"load average: (\d+\.\d+), (\d+\.\d+), (\d+\.\d+)").unwrap();
+    let load_caps = load_re.captures(&output).ok_or("No load data found")?;
+    let load1 = load_caps[1].parse::<f32>().map_err(|e| e.to_string())?;
+    let load5 = load_caps[2].parse::<f32>().map_err(|e| e.to_string())?;
+    let load15 = load_caps[3].parse::<f32>().map_err(|e| e.to_string())?;
+    let load_info = LoadInfo {
+        load1,
+        load5,
+        load15,
+    };
+
+    Ok(load_info)
 }
 
 #[tauri::command]
-pub fn get_disk_info(host: &str) -> Result<String, String> {
-    match get_disk_info_l(host) {
+pub fn get_load_info(host: &str) -> Result<String, String> {
+    match get_load_info_l(host) {
         Ok(data) => {
             let response = Response {
                 code: 0,
@@ -28,10 +45,8 @@ pub fn get_disk_info(host: &str) -> Result<String, String> {
                 message: err.clone(),
                 data: None,
             };
-            error!("get_disk_info failed, err: {}", err);
+            error!("get_load_info failed, err: {}", err);
             serde_json::to_string(&response).map_err(|e| e.to_string())
-            /*  error!("get_disk_info failed, err: {}", err);
-            Err(err) // 直接返回错误 */
         }
     }
 }
@@ -60,7 +75,7 @@ mod test {
             passwd.as_str(),
         );
 
-        let ret = get_disk_info(format!("{}:{}", host, port).as_str()).unwrap();
+        let ret = get_load_info(format!("{}:{}", host, port).as_str()).unwrap();
         info!("{}", ret);
         disconnect_ssh(format!("{}:{}", host, port).as_str());
     }

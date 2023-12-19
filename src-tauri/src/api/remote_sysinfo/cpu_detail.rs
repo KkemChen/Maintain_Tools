@@ -1,5 +1,6 @@
 use super::Response;
 use crate::ssh::ssh_api::*;
+use log::error;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use tokio::time::{sleep, Duration};
@@ -69,7 +70,7 @@ fn parse_cpu_times(output: &str) -> Result<Vec<CpuTime>, String> {
     Ok(cpu_times)
 }
 
-async fn get_cpu_detail_l(host: &str) -> Result<String, String> {
+async fn get_cpu_detail_l(host: &str) -> Result<Vec<CpuDetail>, String> {
     let initial_output = exec_ssh_command_on_shell(host, "cat /proc/stat")?;
     let initial_cpu_times = parse_cpu_times(&initial_output)?;
 
@@ -99,8 +100,8 @@ async fn get_cpu_detail_l(host: &str) -> Result<String, String> {
     }
 
     // 序列化为 JSON 字符串
-    let json = serde_json::to_string(&cpu_details).map_err(|e| e.to_string())?;
-    Ok(json)
+    // let json = serde_json::to_string(&cpu_details).map_err(|e| e.to_string())?;
+    Ok(cpu_details)
 }
 
 #[tauri::command]
@@ -118,9 +119,10 @@ pub async fn get_cpu_detail(host: &str) -> Result<String, String> {
         Err(err) => {
             let response = Response::<String> {
                 code: -1,
-                message: err,
+                message: err.clone(),
                 data: None,
             };
+            error!("get_cpu_detail: {}", err);
             serde_json::to_string(&response).map_err(|e| e.to_string())
         }
     }
@@ -131,10 +133,12 @@ mod test {
     use super::*;
     use crate::ssh::ssh_api::*;
     use dotenv::dotenv;
+    use log4rs;
     use std::env;
-    #[test]
-    fn test_top() {
+    #[tokio::test]
+    async fn test_top() {
         dotenv::from_path("../.env").ok();
+        log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
 
         let host = env::var("VITE_HOST").unwrap();
         let port = env::var("VITE_PORT").unwrap();
@@ -147,7 +151,10 @@ mod test {
             passwd.as_str(),
         );
 
-        get_cpu_detail(format!("{}:{}", host, port).as_str());
+        let ret = get_cpu_detail(format!("{}:{}", host, port).as_str())
+            .await
+            .unwrap();
+        info!("{}", ret);
         disconnect_ssh(format!("{}:{}", host, port).as_str());
     }
 }
