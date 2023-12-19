@@ -33,10 +33,11 @@ const chartsOption = ref({
 
 const cpuTableData = ref([]);
 const memTableData = ref([]);
-const loadTableData = ref([]);
+const loadTableData = ref();
 const netTableData = ref([]);
 const diskTableData = ref([]);
 const processTableData = ref([]);
+const diskInfo = ref([]);
 
 const getCPUAverageUsage = (cpuData) => {
   if (Array.isArray(cpuData) && cpuData.length > 0) {
@@ -56,8 +57,15 @@ const getMemoryUsage = (memData) => {
 };
 
 const getLoadUsage = (loadData) => {
-  if (Array.isArray(loadData) && loadData.length > 0) {
-    return loadData[0];
+  if (loadData) {
+    return loadData.load1;
+  }
+  return 0.0;
+};
+
+const getDiskUsage = (diskData) => {
+  if (diskData) {
+    return parseFloat(diskData);
   }
   return 0.0;
 };
@@ -68,8 +76,9 @@ const getRemoteInfo = async () => {
   memTableData.value = globalStore.systemInfo.memoryInfo;
   loadTableData.value = globalStore.systemInfo.loadInfo;
   netTableData.value = globalStore.systemInfo.networksInfo;
-  diskTableData.value = globalStore.systemInfo.diskInfo;
+  diskTableData.value = globalStore.systemInfo.diskDetail;
   processTableData.value = globalStore.systemInfo.processInfo;
+  diskInfo.value = globalStore.systemInfo.diskInfo;
 };
 
 const resizePie = () => {
@@ -111,7 +120,7 @@ onMounted(() => {
           chartsOption.value.cpuChart.data = getCPUAverageUsage(cpuTableData.value).toFixed(2);
           chartsOption.value.memoryChart.data = getMemoryUsage(memTableData.value).toFixed(2);
           chartsOption.value.loadChart.data = getLoadUsage(loadTableData.value).toFixed(2);
-          chartsOption.value.diskChart.data = (Math.random() * 100).toFixed(2);
+          chartsOption.value.diskChart.data = getDiskUsage(diskInfo.value).toFixed(2);
         });
       }, 3000);
     }

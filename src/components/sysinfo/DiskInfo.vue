@@ -34,7 +34,7 @@ const updateColumnWidth = () => {
   }
 };
 
-const assignDiskInfo = () => {
+const assignDiskDetail = () => {
   tableData.value = props.option.map((item, index) => ({
     name: item.name,
     mounted_on: item.mounted_on,
@@ -48,9 +48,9 @@ let intervalId: number | undefined;
 
 onMounted(() => {
   updateColumnWidth();
-  assignDiskInfo();
+  assignDiskDetail();
   intervalId = setInterval(() => {
-    assignDiskInfo(); // 定时获取 disk 信息
+    assignDiskDetail(); // 定时获取 disk 信息
   }, 3000);
   window.addEventListener('resize', updateColumnWidth);
 });

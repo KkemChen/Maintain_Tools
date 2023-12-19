@@ -1,6 +1,6 @@
 use super::Response;
 use crate::ssh::ssh_api::*;
-use log::error;
+use log::{error, info};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 

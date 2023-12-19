@@ -1,10 +1,10 @@
 use super::Response;
 use crate::ssh::ssh_api::*;
-use log::error;
+use log::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
-pub struct DiskInfo {
+pub struct DiskDetail {
     name: String,
     size: String,
     used: String,
@@ -13,7 +13,7 @@ pub struct DiskInfo {
     mounted_on: String,
 }
 
-fn get_disk_detail_l(host: &str) -> Result<Vec<DiskInfo>, String> {
+fn get_disk_detail_l(host: &str) -> Result<Vec<DiskDetail>, String> {
     let output = exec_ssh_command(host, "df -h")?;
     let re = Regex::new(
         r"(?m)^(?P<name>\S+)\s+(?P<size>\S+)\s+(?P<used>\S+)\s+(?P<avail>\S+)\s+(?P<use_percentage>\S+%)\s+(?P<mounted_on>\S+)$"
@@ -22,7 +22,7 @@ fn get_disk_detail_l(host: &str) -> Result<Vec<DiskInfo>, String> {
     let mut disk_infos = Vec::new();
 
     for cap in re.captures_iter(&output) {
-        disk_infos.push(DiskInfo {
+        disk_infos.push(DiskDetail {
             name: cap["name"].to_string(),
             size: cap["size"].to_string(),
             used: cap["used"].to_string(),

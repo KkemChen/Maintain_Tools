@@ -2,7 +2,7 @@ import { createPinia, defineStore } from 'pinia';
 import { useSysinfo } from '@/api/sysinfo';
 import { useSSH } from '@/api/ssh';
 
-const { fetchRemoteCPUInfo, fetchRemoteMemoryInfo, fetchRemoteLoadInfo, fetchRemoteIoInfo, fetchRemoteDiskInfo, fetchRemoteProcessInfo } = useSysinfo();
+const { fetchRemoteCPUInfo, fetchRemoteMemoryInfo, fetchRemoteLoadInfo, fetchRemoteIoInfo, fetchRemoteDiskDetail, fetchRemoteProcessInfo, fetchRemoteDiskInfo } = useSysinfo();
 const { sshConnect, disconnectSsh } = useSSH();
 
 export const useGlobalStore = defineStore({
@@ -23,7 +23,8 @@ export const useGlobalStore = defineStore({
         loadInfo: [],
         networksInfo: [],
         processInfo: [],
-        diskInfo: []
+        diskDetail: [],
+        diskInfo: ''
       }
     }
   },
@@ -40,6 +41,7 @@ export const useGlobalStore = defineStore({
         this.systemInfo.loadInfo = await fetchRemoteLoadInfo(requestUrl);
         this.systemInfo.networksInfo = await fetchRemoteIoInfo(requestUrl);
         this.systemInfo.processInfo = await fetchRemoteProcessInfo(requestUrl);
+        this.systemInfo.diskDetail = await fetchRemoteDiskDetail(requestUrl);
         this.systemInfo.diskInfo = await fetchRemoteDiskInfo(requestUrl);
       }
     },

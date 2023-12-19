@@ -1,10 +1,9 @@
 use super::Response;
 use crate::ssh::ssh_api::*;
-use log::error;
+use log::*;
 
 fn get_disk_info_l(host: &str) -> Result<String, String> {
-    let command =
-        "df --output=pcent | awk \'NR>1 {sum+=$1; count++} END {print sum/count \" % \"}\'";
+    let command = "df --output=pcent | awk \'NR>1 {sum+=$1; count++} END {print sum/count}\'";
 
     let output = exec_ssh_command(host, command)?;
 
