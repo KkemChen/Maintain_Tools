@@ -23,6 +23,9 @@ interface Activity {
   icon: any;
   size: string;
   color: string;
+  video: [];
+  audio: [];
+  tagColor: string;
 }
 
 const activities = ref<Activity[]>([]);
@@ -34,18 +37,30 @@ const initActivities = () => {
     icon: null,
     size: 'large',
     color: '',
+    video: [],
+    audio: [],
+    tagColor: 'info',
   }));
 };
 
 watch(() => form.type, initActivities);
 
-const test1 = {
-  code: 0,
-  message: 'success',
+const setSuccessStatus = (activity) => {
+  activity.color = '#67C23A';
+  activity.icon = Select;
+  activity.tagColor = 'success';
 };
-const test2 = {
-  code: -1,
-  message: 'failed',
+
+const setFailedStatus = (activity) => {
+  activity.color = '#F56C6C';
+  activity.icon = CloseBold;
+  activity.tagColor = 'danger';
+};
+
+const setProcesstatus = (activity) => {
+  activity.color = '#409EFF';
+  activity.icon = MoreFilled;
+  activity.tagColor = '';
 };
 
 const onSubmit = async () => {
@@ -53,20 +68,69 @@ const onSubmit = async () => {
 
   for (const activity of activities.value) {
     // 对每个 activity 执行异步操作
-    activity.color = '#409EFF';
-    activity.icon = MoreFilled;
+    setProcesstatus(activity);
     try {
       const res = await checkStream('192.168.1.172:6622', 'rtsp://kkem.me:1554/live/test');
       console.log(res);
 
-      const data = res;
-      activity.color = data.code === 0 ? '#67C23A' : '#F56C6C';
-      activity.icon = data.code === 0 ? Select : CloseBold;
+      const data = res.data;
+      if (res.code === 0) {
+        setSuccessStatus(activity);
+        console.log(data.video);
+        console.log(data.audio);
+
+        activity.video = data.video;
+        activity.audio = data.audio;
+      } else {
+        setFailedStatus(activity);
+      }
     } catch (error) {
       console.error('Error:', error);
-      activity.color = '#F56C6C'; // 错误时设置为红色
-      activity.icon = CloseBold;
+      setFailedStatus(activity);
     }
+  }
+};
+
+function channelDescription(channelCount) {
+  switch (channelCount) {
+    case 1:
+      return 'mono';
+    case 2:
+      return 'stereo';
+    // 添加更多的声道描述
+    default:
+      return `${channelCount} channels`;
+  }
+}
+
+const formatStreamInfo = (stream) => {
+  let formattedString = '';
+
+  if (stream.codec_type === 'video') {
+    formattedString = `Stream #${stream.index}:  Video: ${stream.codec_name},  ${stream.pix_fmt},  ${stream.width}x${stream.height}`;
+    // 这里可以添加更多的视频相关信息，例如帧率等
+  } else if (stream.codec_type === 'audio') {
+    formattedString = `Stream #${stream.index}:  Audio: ${stream.codec_name},  ${
+      stream.sample_rate
+    } Hz,  ${channelDescription(stream.channels)},  ${stream.sample_fmt}`;
+    // 这里可以添加更多的音频相关信息
+  }
+
+  return formattedString;
+};
+
+const getStreamUrl = (type, id) => {
+  switch (type) {
+    case 'RTSP':
+      return `rtsp://192.168.1.172/live/${id}`;
+    case 'RTMP/FLV':
+      return `http://192.168.1.172:8096/live/${id}.live.flv`;
+    case 'HLS':
+      return `http://192.168.1.172:8096/live/${id}/hls.m3u8`;
+    case 'FMP4':
+      return `http://192.168.1.172:8096/live/${id}.mp4`;
+    default:
+      return;
   }
 };
 
@@ -108,7 +172,19 @@ onMounted(() => {
           :timestamp="activity.timestamp"
           style="height: 20%"
         >
-          {{ activity.content }}
+          <el-card shadow="always">
+            <template #header>
+              <el-tag :type="activity.tagColor" class="item-tag">
+                {{ activity.content }}
+              </el-tag>
+            </template>
+            <div v-for="(stream, streamIndex) in activity.video" :key="streamIndex">
+              {{ formatStreamInfo(stream) }}
+            </div>
+            <div v-for="(stream, streamIndex) in activity.audio" :key="streamIndex">
+              {{ formatStreamInfo(stream) }}
+            </div>
+          </el-card>
         </el-timeline-item>
       </el-timeline>
     </div>
@@ -117,9 +193,23 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .item-box {
-  margin-left: 10%;
+  margin-left: 0%;
   margin-top: 5%;
-  height: 50vh;
+  padding-right: 10%;
   white-space: pre-wrap;
+}
+
+:deep(.el-card__header) {
+  padding: 5px 10px;
+}
+
+:deep(.el-card__body) {
+  padding: 10px;
+  // height: 10vh;
+  display: flex-direction;
+}
+
+.item-tag {
+  font-size: 15px;
 }
 </style>

@@ -1,5 +1,6 @@
 use super::Response;
 use crate::ssh::ssh_api::*;
+use log::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tokio::task;
@@ -134,6 +135,7 @@ pub async fn check_stream(host: &str, url: &str) -> Result<String, String> {
                 message: "Timeout".to_string(),
                 data: None,
             };
+            error!("check_stream failed, err: Timeout",);
             serde_json::to_string(&response).map_err(|e| e.to_string())
         }
     }
@@ -144,12 +146,12 @@ mod test {
     use super::*;
     use crate::ssh::ssh_api::*;
     use dotenv::dotenv;
+    use log4rs;
     use std::env;
-
     #[tokio::test]
     async fn test_net_info() {
         dotenv::from_path("../.env").ok();
-
+        log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
         let host = env::var("VITE_HOST").unwrap();
         let port = env::var("VITE_PORT").unwrap();
         let user = env::var("VITE_USER").unwrap();
@@ -165,7 +167,7 @@ mod test {
             "rtsp://kkem.me:1554/live/test",
         )
         .await;
-        println!("{}", result.unwrap());
+        info!("{}", result.unwrap());
         // assert!(result.is_ok());
         disconnect_ssh(format!("{}:{}", host, port).as_str());
     }
