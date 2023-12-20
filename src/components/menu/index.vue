@@ -91,7 +91,11 @@ onBeforeUnmount(() => {
         <CustomLoading v-else-if="connectionStatus === 1" />
         <SuccessFilled style="color: var(--el-color-success)" v-else />
       </el-icon>
-      <template #title>connect SSH</template>
+      <template #title>
+        <span v-if="connectionStatus === 0">Not Connected</span>
+        <span v-else-if="connectionStatus === 1">Connecting...</span>
+        <span v-else>{{ globalStore.remoteConfig.host }} : {{ globalStore.remoteConfig.port }}</span>
+      </template>
     </el-menu-item>
 
     <el-menu-item class="menu-item-bottom" @click="toggleCollapse">
