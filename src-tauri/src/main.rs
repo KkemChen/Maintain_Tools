@@ -5,7 +5,10 @@ mod app;
 mod ssh;
 use log::{self, info};
 use log4rs;
-fn main() {
+use tokio;
+
+#[tokio::main]
+async fn main() {
     log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
     info!("Start...");
     app::create_app(tauri::Builder::default()).run(|_app_handle, event| match event {

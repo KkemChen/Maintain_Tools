@@ -1,9 +1,11 @@
 use super::ssh_manager::*;
+use crate::api::{start_fetch_sysinfo, stop_fetch_sysinfo};
 use lazy_static::lazy_static;
 use log::*;
 use serde_json::json;
 use std::collections::HashMap;
 use std::sync::Mutex;
+
 lazy_static! {
     static ref SSHMAP: Mutex<HashMap<String, SshConnectionManager>> = Mutex::new(HashMap::new());
 }
@@ -23,7 +25,7 @@ pub fn add_ssh_connect(host: &str, user: &str, password: &str) -> String {
             let mut map = SSHMAP.lock().unwrap();
             map.insert(host.to_string(), manager);
             info!("Add ssh connect success. {}", host);
-
+            start_fetch_sysinfo(host);
             json!({
                 "code": 0,
                 "message": "Add ssh connect success.".to_string(),
@@ -66,6 +68,7 @@ pub fn exec_ssh_command_on_shell(host: &str, command: &str) -> Result<String, St
 
 #[tauri::command]
 pub fn disconnect_ssh(host: &str) -> Result<String, String> {
+    stop_fetch_sysinfo(host);
     let mut map = SSHMAP.lock().unwrap();
     if map.contains_key(host) {
         map.remove(host);

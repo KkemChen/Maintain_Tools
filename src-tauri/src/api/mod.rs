@@ -151,9 +151,7 @@ pub fn start_fetch_sysinfo(host: &str) {
     map.insert(hosttmp.to_string(), tx);
 }
 
-pub async fn stop_fetch_sysinfo(host: &str) {
-    // 发送停止信号，忽略错误，因为接收端可能已经丢弃
-
+pub fn stop_fetch_sysinfo(host: &str) {
     let mut map = CHECK_THREAD.lock().unwrap();
     if let Some(sender) = map.remove(host) {
         // 尝试移除并获取host对应的value
@@ -166,6 +164,7 @@ pub async fn stop_fetch_sysinfo(host: &str) {
     }
 }
 
+#[tauri::command]
 pub fn get_sysinfo(host: &str) -> Result<String, String> {
     let sysinfo = SHARED_SYSINFO.read().unwrap();
 
@@ -201,8 +200,6 @@ mod test {
             passwd.as_str(),
         );
 
-        let tx = start_fetch_sysinfo(format!("{}:{}", host, port).as_str());
-
         for _ in 0..3 {
             tokio::time::sleep(Duration::from_secs(3)).await;
 
@@ -216,8 +213,8 @@ mod test {
             };
         }
         tokio::time::sleep(Duration::from_secs(15)).await;
-        stop_fetch_sysinfo(format!("{}:{}", host, port).as_str()).await;
-        tokio::time::sleep(Duration::from_secs(15)).await;
+
         disconnect_ssh(format!("{}:{}", host, port).as_str());
+        tokio::time::sleep(Duration::from_secs(15)).await;
     }
 }
