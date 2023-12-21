@@ -14,7 +14,7 @@ async fn main() {
     app::create_app(tauri::Builder::default()).run(|_app_handle, event| match event {
         tauri::RunEvent::ExitRequested { api, .. } => {
             app::cleanup_on_exit();
-            api.prevent_exit();
+            // api.prevent_exit();
         }
         _ => {}
     });
