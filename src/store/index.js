@@ -10,6 +10,7 @@ export const useGlobalStore = defineStore({
   state: () => {
     return {
       isConnected: false,
+      isSpecialMode: false,
       remoteConfig: {
         host: '',
         port: 0,
