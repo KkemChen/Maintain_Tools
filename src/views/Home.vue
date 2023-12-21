@@ -31,19 +31,18 @@ const chartsOption = ref({
   },
 });
 
+const cpuInfo = ref('');
 const cpuTableData = ref([]);
-const memTableData = ref([]);
-const loadTableData = ref();
+const memTableData = ref({});
+const loadTableData = ref({});
 const netTableData = ref([]);
 const diskTableData = ref([]);
 const processTableData = ref([]);
-const diskInfo = ref([]);
+const diskInfo = ref('');
 
-const getCPUAverageUsage = (cpuData) => {
-  if (Array.isArray(cpuData) && cpuData.length > 0) {
-    const totalUsage = cpuData.reduce((sum, cpu) => sum + cpu.usage, 0);
-    const averageUsage = totalUsage / cpuData.length;
-    return averageUsage;
+const getCPUUsage = (cpuData) => {
+  if (cpuData) {
+    return cpuData.usage;
   }
   return 0.0;
 };
@@ -56,15 +55,15 @@ const getMemoryUsage = (memData) => {
   return 0.0;
 };
 
-const getLoadUsage = (loadData) => {
-  if (loadData) {
-    return loadData.load1;
+const getLoadUsage = (loadData, cpuCount) => {
+  if (loadData && cpuCount > 0) {
+    return loadData.load1 / cpuCount;
   }
   return 0.0;
 };
 
 const getDiskUsage = (diskData) => {
-  if (diskData > 0) {
+  if (diskData.length > 0) {
     return parseFloat(diskData);
   }
   return 0.0;
@@ -72,13 +71,28 @@ const getDiskUsage = (diskData) => {
 
 const getRemoteInfo = async () => {
   await globalStore.getSystemInfo();
-  cpuTableData.value = globalStore.systemInfo.cpuInfo;
+
+  cpuInfo.value = globalStore.systemInfo.cpuInfo;
+  // cpu 进度表
+  cpuTableData.value = globalStore.systemInfo.cpuDetail;
+  // memory pie
   memTableData.value = globalStore.systemInfo.memoryInfo;
+  // load pie
   loadTableData.value = globalStore.systemInfo.loadInfo;
+  // networks i/o
   netTableData.value = globalStore.systemInfo.networksInfo;
-  diskTableData.value = globalStore.systemInfo.diskDetail;
-  processTableData.value = globalStore.systemInfo.processInfo;
+  // disk pie
   diskInfo.value = globalStore.systemInfo.diskInfo;
+  // disk 表格
+  diskTableData.value = globalStore.systemInfo.diskDetail;
+  // process 表格
+  processTableData.value = globalStore.systemInfo.processInfo;
+
+  // pie 图表赋值
+  chartsOption.value.cpuChart.data = getCPUUsage(cpuInfo.value).toFixed(2);
+  chartsOption.value.memoryChart.data = getMemoryUsage(memTableData.value).toFixed(2);
+  chartsOption.value.loadChart.data = getLoadUsage(loadTableData.value, cpuTableData.value.length).toFixed(2);
+  chartsOption.value.diskChart.data = getDiskUsage(diskInfo.value).toFixed(2);
 };
 
 const resizePie = () => {
@@ -117,10 +131,6 @@ onMounted(() => {
       setInterval(() => {
         nextTick(() => {
           getRemoteInfo();
-          chartsOption.value.cpuChart.data = getCPUAverageUsage(cpuTableData.value).toFixed(2);
-          chartsOption.value.memoryChart.data = getMemoryUsage(memTableData.value).toFixed(2);
-          chartsOption.value.loadChart.data = getLoadUsage(loadTableData.value).toFixed(2);
-          chartsOption.value.diskChart.data = getDiskUsage(diskInfo.value).toFixed(2);
         });
       }, 3000);
     }

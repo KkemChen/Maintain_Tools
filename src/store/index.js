@@ -2,7 +2,7 @@ import { createPinia, defineStore } from 'pinia';
 import { useSysinfo } from '@/api/sysinfo';
 import { useSSH } from '@/api/ssh';
 
-const { fetchRemoteCPUInfo, fetchRemoteMemoryInfo, fetchRemoteLoadInfo, fetchRemoteIoInfo, fetchRemoteDiskDetail, fetchRemoteProcessInfo, fetchRemoteDiskInfo } = useSysinfo();
+const { fetchRemoteAllInfo } = useSysinfo();
 const { sshConnect, disconnectSsh } = useSSH();
 
 export const useGlobalStore = defineStore({
@@ -18,13 +18,14 @@ export const useGlobalStore = defineStore({
         sysInfoHttpPort: 9888 //默认请求远端主机的9888端口获取sysinfo信息
       },
       systemInfo: {
-        cpuInfo: [],
-        memoryInfo: [],
-        loadInfo: [],
+        cpuInfo: {},
+        cpuDetail: [],
+        memoryInfo: {},
+        loadInfo: {},
         networksInfo: [],
         processInfo: [],
-        diskDetail: [],
-        diskInfo: ''
+        diskInfo: '',
+        diskDetail: []
       }
     }
   },
@@ -36,13 +37,15 @@ export const useGlobalStore = defineStore({
     async getSystemInfo() {
       if (this.isConnected) {
         const requestUrl = `${this.remoteConfig.host}:${this.remoteConfig.port}`;
-        this.systemInfo.cpuInfo = await fetchRemoteCPUInfo(requestUrl);
-        this.systemInfo.memoryInfo = await fetchRemoteMemoryInfo(requestUrl);
-        this.systemInfo.loadInfo = await fetchRemoteLoadInfo(requestUrl);
-        this.systemInfo.networksInfo = await fetchRemoteIoInfo(requestUrl);
-        this.systemInfo.processInfo = await fetchRemoteProcessInfo(requestUrl);
-        this.systemInfo.diskDetail = await fetchRemoteDiskDetail(requestUrl);
-        this.systemInfo.diskInfo = await fetchRemoteDiskInfo(requestUrl);
+        const res = await fetchRemoteAllInfo(requestUrl);
+        this.systemInfo.cpuInfo = res.cpu_info;
+        this.systemInfo.cpuDetail = res.cpu_detail;
+        this.systemInfo.memoryInfo = res.mem_info;
+        this.systemInfo.loadInfo = res.load_info;
+        this.systemInfo.networksInfo = res.net_info;
+        this.systemInfo.processInfo = res.process_info;
+        this.systemInfo.diskInfo = res.disk_info;
+        this.systemInfo.diskDetail = res.disk_detail;
       }
     },
     async getRemoteConnection() {
