@@ -2,8 +2,9 @@ use super::Response;
 use crate::ssh::ssh_api::*;
 use log::*;
 
-fn get_disk_info_l(host: &str) -> Result<String, String> {
-    let command = "df --output=pcent | awk \'NR>1 {sum+=$1; count++} END {print sum/count}\'";
+pub fn get_disk_info_l(host: &str) -> Result<String, String> {
+    let command = "df --output=source,pcent | awk \'$1 !~ /overlay|tmpfs/ && NR>1 {sum+=$2; count++} END {if (count > 0) print sum/count; else print 0}\'
+    ";
 
     let output = exec_ssh_command(host, command)?;
 

@@ -3,8 +3,8 @@ use crate::ssh::ssh_api::*;
 use log::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, Debug)]
-struct ProcessInfo {
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct ProcessInfo {
     pid: String,
     user: String,
     virt: String,
@@ -14,7 +14,7 @@ struct ProcessInfo {
     command: String,
 }
 
-fn get_process_info_l(host: &str) -> Result<Vec<ProcessInfo>, String> {
+pub fn get_process_info_l(host: &str) -> Result<Vec<ProcessInfo>, String> {
     let output = exec_ssh_command_on_shell(host, "top -b -n 1")?;
     //println!("{}", output);
     let re = Regex::new(

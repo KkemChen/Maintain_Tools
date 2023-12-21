@@ -4,14 +4,14 @@ use log::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct LoadInfo {
     load1: f32,
     load5: f32,
     load15: f32,
 }
 
-fn get_load_info_l(host: &str) -> Result<LoadInfo, String> {
+pub fn get_load_info_l(host: &str) -> Result<LoadInfo, String> {
     let output = exec_ssh_command(host, "uptime")?;
 
     let load_re = Regex::new(r"load average: (\d+\.\d+), (\d+\.\d+), (\d+\.\d+)").unwrap();

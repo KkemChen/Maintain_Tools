@@ -3,7 +3,7 @@ use crate::ssh::ssh_api::*;
 use log::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct DiskDetail {
     name: String,
     size: String,
@@ -13,7 +13,7 @@ pub struct DiskDetail {
     mounted_on: String,
 }
 
-fn get_disk_detail_l(host: &str) -> Result<Vec<DiskDetail>, String> {
+pub fn get_disk_detail_l(host: &str) -> Result<Vec<DiskDetail>, String> {
     let output = exec_ssh_command(host, "df -h")?;
     let re = Regex::new(
         r"(?m)^(?P<name>\S+)\s+(?P<size>\S+)\s+(?P<used>\S+)\s+(?P<avail>\S+)\s+(?P<use_percentage>\S+%)\s+(?P<mounted_on>\S+)$"
@@ -22,8 +22,14 @@ fn get_disk_detail_l(host: &str) -> Result<Vec<DiskDetail>, String> {
     let mut disk_infos = Vec::new();
 
     for cap in re.captures_iter(&output) {
+        let name = cap["name"].to_string();
+        // 跳过tmpfs和overlay类型的硬盘
+        if name == "tmpfs" || name == "overlay" {
+            continue;
+        }
+
         disk_infos.push(DiskDetail {
-            name: cap["name"].to_string(),
+            name: name,
             size: cap["size"].to_string(),
             used: cap["used"].to_string(),
             avail: cap["avail"].to_string(),

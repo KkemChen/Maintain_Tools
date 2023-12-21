@@ -4,15 +4,15 @@ use log::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
-struct CpuInfo {
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct CpuInfo {
     user_usage: f32,
     sys_usage: f32,
     usage: f32,
 }
 
 //CPU总体信息
-fn get_cpu_info_l(host: &str) -> Result<CpuInfo, String> {
+pub fn get_cpu_info_l(host: &str) -> Result<CpuInfo, String> {
     let output = exec_ssh_command(host, "vmstat").map_err(|e| e.to_string())?;
 
     let cpu_re = Regex::new(

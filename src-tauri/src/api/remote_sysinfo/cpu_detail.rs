@@ -5,11 +5,12 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use tokio::time::{sleep, Duration};
 
-#[derive(Serialize, Deserialize, Debug)]
-struct CpuDetail {
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct CpuDetail {
     index: u32,
     usage: f64,
 }
+
 struct CpuTime {
     index: usize,
     user_time: u64,
@@ -70,7 +71,7 @@ fn parse_cpu_times(output: &str) -> Result<Vec<CpuTime>, String> {
     Ok(cpu_times)
 }
 
-async fn get_cpu_detail_l(host: &str) -> Result<Vec<CpuDetail>, String> {
+pub async fn get_cpu_detail_l(host: &str) -> Result<Vec<CpuDetail>, String> {
     let initial_output = exec_ssh_command_on_shell(host, "cat /proc/stat")?;
     let initial_cpu_times = parse_cpu_times(&initial_output)?;
 

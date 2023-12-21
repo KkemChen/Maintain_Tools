@@ -4,20 +4,20 @@ use log::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use tokio::time::{sleep, Duration};
-#[derive(Serialize, Deserialize, Debug)]
-struct NetInfo {
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct NetInfo {
     device: String,
     receive: f64,
     transmit: f64,
 }
 
-async fn get_net_info_l(host: &str) -> Result<Vec<NetInfo>, String> {
+pub async fn get_net_info_l(host: &str) -> Result<Vec<NetInfo>, String> {
     // 第一次读取
     let initial_output = exec_ssh_command_on_shell(host, "cat /proc/net/dev")?;
     let initial_net_infos = parse_net_data(&initial_output)?;
 
     // thread::sleep(Duration::from_millis(200));
-    sleep(Duration::from_millis(3000)).await;
+    sleep(Duration::from_millis(1000)).await;
     // 第二次读取
     let final_output = exec_ssh_command_on_shell(host, "cat /proc/net/dev")?;
     let final_net_infos = parse_net_data(&final_output)?;

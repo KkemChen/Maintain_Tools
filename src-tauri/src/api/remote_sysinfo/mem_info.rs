@@ -4,14 +4,14 @@ use log::{error, info};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct MemInfo {
     used: u32,
     free: u32,
     total: u32,
 }
 
-fn get_mem_info_l(host: &str) -> Result<MemInfo, String> {
+pub fn get_mem_info_l(host: &str) -> Result<MemInfo, String> {
     // 内存信息
     let output = exec_ssh_command(host, "free -m")?;
 
