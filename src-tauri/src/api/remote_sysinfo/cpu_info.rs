@@ -60,8 +60,8 @@ mod test {
     use log::*;
     use std::env;
 
-    #[test]
-    fn test_get_cpu_info() {
+    #[tokio::test]
+    async fn test_get_cpu_info() {
         dotenv::from_path("../.env").ok();
         log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
 
