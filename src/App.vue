@@ -1,9 +1,27 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-
+import { ref, onMounted, nextTick, onUnmounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import Menu from './components/menu/index.vue';
 // import Info from './components/info/index.vue';
+
+const mainPadding = ref('10px');
+const route = useRoute();
+
+watch(
+  () => route.fullPath,
+  () => {
+    // 检查路由的meta字段并更新padding
+    const padding = route.meta.padding;
+    if (padding !== undefined) {
+      mainPadding.value = padding;
+    } else {
+      mainPadding.value = '10px'; // 默认值
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -14,7 +32,7 @@ import Menu from './components/menu/index.vue';
         
         <Info />
       </el-aside> -->
-      <el-main>
+      <el-main :style="{ padding: mainPadding }">
         <!-- <el-header></el-header> -->
         <router-view></router-view>
       </el-main>
@@ -39,6 +57,7 @@ import Menu from './components/menu/index.vue';
 }
 
 .el-main {
-  padding: 10px;
+  /* padding: 10px; */
+  height: 100%;
 }
 </style>
