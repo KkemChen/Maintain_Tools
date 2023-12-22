@@ -25,3 +25,6 @@ dist-ssr
 
 pnpm-lock.yaml
 .env
+
+# vitepress 
+docs/.vitepress/cache

@@ -11,7 +11,10 @@
     "prettier:comment": "自动格式化当前目录下的所有文件",
     "prettier": "prettier --write .",
     "tauri": "tauri",
-    "start": "tauri dev"
+    "start": "tauri dev",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
@@ -31,6 +34,7 @@
     "@tauri-apps/cli": "^1.5.6",
     "@vitejs/plugin-vue": "^4.2.3",
     "@vue/runtime-core": "^3.3.12",
-    "vite": "^4.4.4"
+    "vite": "^4.4.4",
+    "vitepress": "1.0.0-rc.32"
   }
 }
