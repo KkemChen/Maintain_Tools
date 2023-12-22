@@ -42,7 +42,7 @@ const diskInfo = ref('');
 
 const getCPUUsage = (cpuData) => {
   if (cpuData) {
-    return cpuData.usage;
+    return cpuData.usage * 100;
   }
   return 0.0;
 };
