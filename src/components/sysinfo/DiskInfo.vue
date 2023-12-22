@@ -51,7 +51,7 @@ onMounted(() => {
   assignDiskDetail();
   intervalId = setInterval(() => {
     assignDiskDetail(); // 定时获取 disk 信息
-  }, 3000);
+  }, 2000);
   window.addEventListener('resize', updateColumnWidth);
 });
 

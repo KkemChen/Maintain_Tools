@@ -57,7 +57,7 @@ const getMemoryUsage = (memData) => {
 
 const getLoadUsage = (loadData, cpuCount) => {
   if (loadData && cpuCount > 0) {
-    return loadData.load1 / cpuCount;
+    return (loadData.load1 / cpuCount) * 100;
   }
   return 0.0;
 };
@@ -123,6 +123,7 @@ function adjustFlexPieItems() {
 
 onMounted(() => {
   resizePie();
+  getRemoteInfo();
   window.addEventListener('resize', resizePie);
   watchEffect(() => {
     if (globalStore.isConnected) {
@@ -132,7 +133,7 @@ onMounted(() => {
         nextTick(() => {
           getRemoteInfo();
         });
-      }, 3000);
+      }, 2000);
     }
   });
 });

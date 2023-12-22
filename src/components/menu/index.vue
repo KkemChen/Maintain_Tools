@@ -80,7 +80,7 @@ onBeforeUnmount(() => {
       <el-icon><document /></el-icon>
       <template #title>Document</template>
     </el-menu-item>
-    <el-menu-item index="/setting" disable>
+    <el-menu-item index="/setting">
       <el-icon><setting /></el-icon>
       <template #title>Setting</template>
     </el-menu-item>

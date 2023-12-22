@@ -76,7 +76,7 @@ onMounted(() => {
   updateColumnWidth();
   intervalId = setInterval(() => {
     assignProcessInfo();
-  }, 3000);
+  }, 2000);
   window.addEventListener('resize', updateColumnWidth);
 });
 

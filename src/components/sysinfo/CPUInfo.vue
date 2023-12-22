@@ -59,7 +59,7 @@ onMounted(() => {
     nextTick(() => {
       updateColumnWidths();
     });
-  }, 3000);
+  }, 2000);
 });
 
 onUnmounted(() => {

@@ -34,7 +34,7 @@ onMounted(() => {
 
   intervalId = setInterval(() => {
     updateChartData(props.option);
-  }, 3000);
+  }, 2000);
 
   const resizeChart = () => {
     if (myChart) {
