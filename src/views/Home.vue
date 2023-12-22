@@ -41,7 +41,7 @@ const processTableData = ref([]);
 const diskInfo = ref('');
 
 const getCPUUsage = (cpuData) => {
-  if (cpuData > 0) {
+  if (cpuData.usage > 0) {
     return cpuData.usage * 100;
   }
   return 0.0;
