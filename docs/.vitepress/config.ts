@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  base: '/dist/vitepress',
+  base: process.env.BASE_URL || '/vitepress',
   title: "My Awesome Project",
   description: "A VitePress Site",
   outDir: "../dist/vitepress",
