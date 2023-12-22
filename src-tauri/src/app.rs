@@ -1,6 +1,28 @@
 use log::*;
 pub fn create_app<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::App<R> {
     builder
+        .on_window_event(|event| {
+            match event.event() {
+                tauri::WindowEvent::CloseRequested { api, .. } => {
+                    //阻止默认关闭
+                    api.prevent_close();
+
+                    let window = event.window().clone();
+                    tauri::api::dialog::confirm(
+                        Some(&event.window()),
+                        "关闭应用",
+                        "确定关闭当前应用?",
+                        move |answer| {
+                            if answer {
+                                cleanup_on_exit();
+                                window.close();
+                            }
+                        },
+                    )
+                }
+                _ => {} //todo
+            }
+        })
         .invoke_handler(tauri::generate_handler![
             crate::ssh::ssh_api::add_ssh_connect,
             crate::ssh::ssh_api::exec_ssh_command,
