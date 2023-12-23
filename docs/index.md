@@ -1,25 +1,22 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
-  name: "My Awesome Project"
-  text: "A VitePress Site"
-  tagline: My great project tagline
+  name: "运维手册"
+  text: "现场运维指南"
+  tagline: 快速、有效地处理常见问题和任务
+  image: /main_pic.png
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
+      text: 常用Linux命令
+      link: /LinuxCommands/基础命令
     - theme: alt
-      text: API Examples
-      link: /api-examples
+      text: 常见问题解决方案
+      link: /IssueSolutions/流媒体取流失败相关问题
 
-features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+# features:
+  # - icon: ⚡️
+  # - icon: 🖖
+  # - icon: 🛠️
 ---
 
