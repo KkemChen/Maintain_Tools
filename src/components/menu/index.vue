@@ -11,6 +11,7 @@ import {
   SuccessFilled,
   WarningFilled,
 } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
 import CustomLoading from './components/CustomLoading.vue';
 import SSHDialog from './components/SshDialog.vue';
 import { useGlobalStore } from '@/store';
@@ -22,6 +23,9 @@ const globalStore = useGlobalStore();
 const connectionStatus = ref(0); //0-未连接 1-loading 2-连接成功
 const dialogVisible = ref(false);
 const isCollapse = ref(false);
+const remoteConfigCache = ref({});
+const currentHost = ref('');
+const currentPort = ref('');
 
 const handleOpen = (key, keyPath) => {
   console.log(key, keyPath);
@@ -32,24 +36,53 @@ const handleClose = (key, keyPath) => {
 const toggleCollapse = () => {
   isCollapse.value = !isCollapse.value;
 };
-const toggleConnectionStatus = async (e) => {
+const toggleConnectionStatus = async () => {
   dialogVisible.value = !dialogVisible.value;
+  const activeConntionId = localStorage.getItem(globalStore.getActiveKey());
+  if (activeConntionId) {
+    remoteConfigCache.value = globalStore.getLocalRemoteConfig(activeConntionId);
+  }
 };
 const modifyConnectionStatus = (status) => {
   connectionStatus.value = status;
 };
+const getCurrentSshInfo = (host, port) => {
+  currentHost.value = host;
+  currentPort.value = port;
+};
 
 let hasReloaded = false;
 const navigationEntries = window.performance.getEntriesByType('navigation');
-const unwatch = watchEffect(() => {
+const unwatch = watchEffect(async () => {
   if (globalStore.isConnected) {
     connectionStatus.value = 2;
   } else {
     connectionStatus.value = 0;
   }
   if (!hasReloaded && navigationEntries.length > 0 && navigationEntries[0].type === 'reload') {
-    globalStore.getRemoteConnection();
     hasReloaded = true;
+    const activeConntionId = localStorage.getItem(globalStore.getActiveKey());
+    if (activeConntionId) {
+      connectionStatus.value = 1;
+      const activeConntion = globalStore.getLocalRemoteConfig(activeConntionId);
+      currentHost.value = activeConntion.host;
+      currentPort.value = activeConntion.port;
+
+      const res = await globalStore.getRemoteConnection(activeConntion);
+      connectionStatus.value = res.code === 0 ? 2 : 0;
+      if (res.code === 0) {
+        globalStore.setRemoteConfig(activeConntion);
+      }
+      ElMessage({
+        type: res.code === 0 ? 'success' : 'error',
+        message: res.message,
+      });
+    } else {
+      ElMessage({
+        type: 'warning',
+        message: '当前没有活跃缓存连接',
+      });
+    }
   }
 });
 
@@ -94,7 +127,7 @@ onBeforeUnmount(() => {
       <template #title>
         <span v-if="connectionStatus === 0">Not Connected</span>
         <span v-else-if="connectionStatus === 1">Connecting...</span>
-        <span v-else>{{ globalStore.remoteConfig.host }} : {{ globalStore.remoteConfig.port }}</span>
+        <span v-else>{{ currentHost }} : {{ currentPort }}</span>
       </template>
     </el-menu-item>
 
@@ -106,7 +139,12 @@ onBeforeUnmount(() => {
     </el-menu-item>
   </el-menu>
 
-  <SSHDialog :is-visible="dialogVisible" @modify-connectionStatus="modifyConnectionStatus" />
+  <SSHDialog
+    :is-visible="dialogVisible"
+    :remote-config-cache="remoteConfigCache"
+    @modify-connectionStatus="modifyConnectionStatus"
+    @get-current-ssh-info="getCurrentSshInfo"
+  />
 </template>
 
 <style scoped>

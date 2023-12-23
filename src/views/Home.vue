@@ -122,6 +122,8 @@ function adjustFlexPieItems() {
 }
 
 onMounted(() => {
+  //初始化本地连接状态配置缓存
+  globalStore.initLocalStorage();
   resizePie();
   getRemoteInfo();
   window.addEventListener('resize', resizePie);
