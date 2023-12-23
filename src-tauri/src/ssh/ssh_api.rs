@@ -70,11 +70,23 @@ pub fn exec_ssh_command_on_shell(host: &str, command: &str) -> Result<String, St
 pub fn disconnect_ssh(host: &str) -> Result<String, String> {
     stop_fetch_sysinfo(host);
     let mut map = SSHMAP.lock().unwrap();
+
     if map.contains_key(host) {
         map.remove(host);
-        Ok(format!("Disconnected SSH for host {}", host))
+
+        let res = json!({
+            "code": 0,
+            "message": format!("Disconnected SSH for host {}", host),
+        })
+        .to_string();
+        Ok(res)
     } else {
-        Err(format!("Manager for specified host not found, {}", host))
+        let res = json!({
+            "code": -1,
+            "message": format!("Manager for specified host not found, {}", host),
+        })
+        .to_string();
+        Err(res)
     }
 }
 
@@ -107,8 +119,8 @@ mod test {
         );
     }
 
-    #[test]
-    fn test_disconnect() {
+    #[tokio::test]
+    async fn test_disconnect() {
         dotenv::from_path("../.env").ok();
 
         let host = env::var("VITE_HOST").unwrap();
@@ -121,8 +133,15 @@ mod test {
             user.as_str(),
             passwd.as_str(),
         );
-        thread::sleep(Duration::from_secs(10));
-        disconnect_ssh(format!("{}:{}", host, port).as_str());
+        thread::sleep(Duration::from_secs(5));
+        match disconnect_ssh(format!("{}:{}", host, port).as_str()) {
+            Ok(res) => {
+                println!("{}", res);
+            }
+            Err(res) => {
+                println!("{}", res);
+            }
+        }
     }
 
     #[test]
