@@ -76,6 +76,15 @@ let myChart: echarts.ECharts;
 const updateChart = () => {
   if (myChart) {
     const chartOption = {
+      /*       title: {
+        text: 'GPU info',
+        left: 'center',
+        textStyle: {
+          // 主标题文本的样式
+          color: '#b1b3b8',
+          fontSize: 10,
+        },
+      }, */
       animation: false,
       tooltip: {
         trigger: 'axis',
@@ -85,6 +94,7 @@ const updateChart = () => {
       },
       legend: {
         data: ['usage', 'mem', 'power'],
+        top: '3%',
       },
       toolbox: {
         show: false,
