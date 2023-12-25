@@ -128,9 +128,13 @@ const updateChart = () => {
       yAxis: [
         {
           type: 'value',
+          // min: 0, // 设置最小值为0
+          // max: 100, // 设置最大值为100
           axisLabel: {
             show: false, // 将 show 设置为 false，隐藏数值标签
+            formatter: '{value} %',
           },
+          // interval: 50,
         },
       ],
       series: chartData.value.series,
@@ -162,13 +166,11 @@ onMounted(() => {
 });
 
 function extractLastNumber(str) {
-  const match = str.match(/\d+$/); // 匹配末尾的数字
-  return match ? match[0] : ''; // 返回匹配到的数字，如果没有则返回空字符串
+  const match = str.match(/\s*(\S+)$/);
+  return match ? match[1] : ''; // 返回匹配到的数字，如果没有则返回空字符串
 }
 
 const updateChartData = (newData: any[]) => {
-  console.log(newData);
-
   chartData.value.devName = [];
   chartData.value.series[0].data = [];
   chartData.value.series[1].data = [];

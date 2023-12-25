@@ -22,7 +22,7 @@ pub async fn get_gpu_detail_l(host: &str) -> Result<Vec<GpuDetail>, String> {
 
     // 更新后的正则表达式，用于匹配数据行，并捕获GPU名称
     let data_re = Regex::new(
-        r"(?P<name>NVIDIA GeForce .+?),\s*(?P<index>\d+),\s*(?P<usage>\d+) %,\s*(?P<total>\d+) MiB,\s*(?P<used>\d+) MiB,\s*(?P<power>[\d.]+) W,\s*(?P<power_limit>[\d.]+) W",
+        r"(?P<name>[^,]+),\s*(?P<index>\d+),\s*(?P<usage>\d+) %,\s*(?P<total>\d+) MiB,\s*(?P<used>\d+) MiB,\s*(?P<power>[\d.]+) W,\s*(?P<power_limit>[\d.]+) W",
     )
     .map_err(|_| "Invalid regex".to_string())?;
 

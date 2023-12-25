@@ -66,7 +66,7 @@ pub fn start_fetch_sysinfo(host: &str) {
                             sysinfo.net_info = res;
                         }
                         Err(err) => {
-                            println!("{}", err);
+                            error!("{}", err);
                         }
                     }
                     match get_cpu_detail_l(&host).await {

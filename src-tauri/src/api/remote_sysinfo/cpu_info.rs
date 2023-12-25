@@ -23,7 +23,7 @@ pub fn get_cpu_info_l(host: &str) -> Result<CpuInfo, String> {
     let sys_usage = cpu_caps[2].parse::<f32>().map_err(|e| e.to_string())? / 100.0;
     // 计算空闲时间，并从 1 减去得到总的 CPU 使用率
     let idle = cpu_caps[3].parse::<f32>().map_err(|e| e.to_string())? / 100.0;
-    let total_usage = 1.0 - idle;
+    let total_usage = user_usage + sys_usage;
 
     Ok(CpuInfo {
         user_usage: user_usage,
