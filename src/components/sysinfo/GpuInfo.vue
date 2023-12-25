@@ -49,6 +49,7 @@ const chartData = ref<{
         focus: 'series',
       },
       data: [],
+      color: '#409EFF',
     },
     {
       name: 'mem',
@@ -58,6 +59,7 @@ const chartData = ref<{
         focus: 'series',
       },
       data: [],
+      color: '#67C23A',
     },
     {
       name: 'power',
@@ -67,6 +69,7 @@ const chartData = ref<{
         focus: 'series',
       },
       data: [],
+      color: '#E6A23C',
     },
   ],
 });
