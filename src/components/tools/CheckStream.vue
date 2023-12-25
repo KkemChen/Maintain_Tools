@@ -4,6 +4,8 @@ import { Check, Select, MoreFilled, CloseBold, Close } from '@element-plus/icons
 import { Icon } from '@iconify/vue';
 import { useSysinfo } from '@/api/sysinfo';
 const { checkStream } = useSysinfo();
+import { useGlobalStore } from '@/store';
+const globalStore = useGlobalStore();
 
 // do not use same name with ref
 const form = reactive({
@@ -74,9 +76,13 @@ const onSubmit = async () => {
   for (const activity of activities.value) {
     // 对每个 activity 执行异步操作
     setProcesstatus(activity);
+    console.log(activity);
+    let url = getStreamUrl(activity.content, form.name);
     try {
-      const res = await checkStream('192.168.1.172:6622', 'rtsp://kkem.me:1554/live/test');
-      console.log(res);
+      const res = await checkStream(
+        `${globalStore.remoteConfig.host}:${globalStore.remoteConfig.port}`,
+        getStreamUrl(activity.content, form.name),
+      );
 
       const data = res.data;
       if (res.code === 0) {
@@ -127,15 +133,15 @@ const formatStreamInfo = (stream) => {
 const getStreamUrl = (type, id) => {
   switch (type) {
     case 'RTSP':
-      return `rtsp://192.168.1.172/live/${id}`;
+      return `rtsp://${globalStore.remoteConfig.host}/live/${id}`;
     case 'RTMP/FLV':
-      return `http://192.168.1.172:8096/live/${id}.live.flv`;
+      return `http://${globalStore.remoteConfig.host}:8096/live/${id}.live.flv`;
     case 'HLS':
-      return `http://192.168.1.172:8096/live/${id}/hls.m3u8`;
+      return `http://${globalStore.remoteConfig.host}:8096/live/${id}/hls.m3u8`;
     case 'FMP4':
-      return `http://192.168.1.172:8096/live/${id}.mp4`;
+      return `http://${globalStore.remoteConfig.host}:8096/live/${id}.live.mp4`;
     default:
-      return;
+      return ``;
   }
 };
 

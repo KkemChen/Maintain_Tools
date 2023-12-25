@@ -13,19 +13,22 @@ pub struct CpuInfo {
 
 //CPU总体信息
 pub fn get_cpu_info_l(host: &str) -> Result<CpuInfo, String> {
-    let output = exec_ssh_command(host, "vmstat").map_err(|e| e.to_string())?;
+    let output = exec_ssh_command(host, "top -b -n 1").map_err(|e| e.to_string())?;
 
-    let cpu_re = Regex::new(
-        r"\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)\s+(\d+)\s+\d+\s+\d+\s+\d",
-    ).unwrap();
+    // 匹配 top 命令输出中的 CPU 使用率行，这里的正则表达式可能需要根据实际输出进行调整
+    let cpu_re =
+        Regex::new(r"%Cpu\(s\):.*?(\d+\.\d+) us.*?(\d+\.\d+) sy.*?(\d+\.\d+) id.*?").unwrap();
     let cpu_caps = cpu_re.captures(&output).ok_or("No CPU data found")?;
     let user_usage = cpu_caps[1].parse::<f32>().map_err(|e| e.to_string())? / 100.0;
     let sys_usage = cpu_caps[2].parse::<f32>().map_err(|e| e.to_string())? / 100.0;
+    // 计算空闲时间，并从 1 减去得到总的 CPU 使用率
+    let idle = cpu_caps[3].parse::<f32>().map_err(|e| e.to_string())? / 100.0;
+    let total_usage = 1.0 - idle;
 
     Ok(CpuInfo {
         user_usage: user_usage,
         sys_usage: sys_usage,
-        usage: user_usage + sys_usage, // 将 user_usage 和 sys_usage 相加
+        usage: total_usage, // 使用 total_usage 代替之前的 user_usage + sys_usage
     })
 }
 

@@ -67,7 +67,7 @@ pub fn exec_ssh_command_on_shell(host: &str, command: &str) -> Result<String, St
 }
 
 #[tauri::command]
-pub fn disconnect_ssh(host: &str) -> Result<String, String> {
+pub fn disconnect_ssh(host: &str) -> String {
     stop_fetch_sysinfo(host);
     let mut map = SSHMAP.lock().unwrap();
 
@@ -79,14 +79,14 @@ pub fn disconnect_ssh(host: &str) -> Result<String, String> {
             "message": format!("Disconnected SSH for host {}", host),
         })
         .to_string();
-        Ok(res)
+        res
     } else {
         let res = json!({
             "code": -1,
             "message": format!("Manager for specified host not found, {}", host),
         })
         .to_string();
-        Err(res)
+        res
     }
 }
 
@@ -134,14 +134,8 @@ mod test {
             passwd.as_str(),
         );
         thread::sleep(Duration::from_secs(5));
-        match disconnect_ssh(format!("{}:{}", host, port).as_str()) {
-            Ok(res) => {
-                println!("{}", res);
-            }
-            Err(res) => {
-                println!("{}", res);
-            }
-        }
+        let ret = disconnect_ssh(format!("{}:{}", host, port).as_str());
+        println!("{}", ret);
     }
 
     #[test]

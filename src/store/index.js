@@ -27,7 +27,8 @@ export const useGlobalStore = defineStore({
         networksInfo: [],
         processInfo: [],
         diskInfo: '',
-        diskDetail: []
+        diskDetail: [],
+        gpuDetail: []
       }
     }
   },
@@ -69,6 +70,7 @@ export const useGlobalStore = defineStore({
         this.systemInfo.processInfo = res.process_info;
         this.systemInfo.diskInfo = res.disk_info;
         this.systemInfo.diskDetail = res.disk_detail;
+        this.systemInfo.gpuDetail = res.gpu_detail;
       }
     },
     async getRemoteConnection(remoteConfigObj) {

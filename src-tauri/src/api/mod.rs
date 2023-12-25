@@ -13,6 +13,7 @@ use crate::api::remote_sysinfo::cpu_detail::*;
 use crate::api::remote_sysinfo::cpu_info::*;
 use crate::api::remote_sysinfo::disk_detail::*;
 use crate::api::remote_sysinfo::disk_info::*;
+use crate::api::remote_sysinfo::gpu_detail::*;
 use crate::api::remote_sysinfo::load_info::*;
 use crate::api::remote_sysinfo::mem_info::*;
 use crate::api::remote_sysinfo::net_info::*;
@@ -39,7 +40,7 @@ struct SysInfo {
     process_info: Vec<ProcessInfo>,
     net_info: Vec<NetInfo>,
     load_info: LoadInfo,
-    // gpu_detail:
+    gpu_detail: Vec<GpuDetail>,
 }
 
 lazy_static! {
@@ -132,6 +133,15 @@ pub fn start_fetch_sysinfo(host: &str) {
                         Ok(res) => {
                             let mut sysinfo = SHARED_SYSINFO.write().unwrap();
                             sysinfo.process_info = res;
+                        }
+                        Err(err) => {
+                            error!("{}", err);
+                        }
+                    }
+                    match get_gpu_detail_l(&host).await {
+                        Ok(res) => {
+                            let mut sysinfo = SHARED_SYSINFO.write().unwrap();
+                            sysinfo.gpu_detail = res;
                         }
                         Err(err) => {
                             error!("{}", err);

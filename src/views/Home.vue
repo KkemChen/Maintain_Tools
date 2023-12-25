@@ -4,6 +4,7 @@ import DiskInfo from '@/components/sysinfo/DiskInfo.vue';
 import ProcessInfo from '@/components/sysinfo/ProcessInfo.vue';
 import Pie from '@/components/v-charts/index.vue';
 import IOInfo from '@/components/sysinfo/IOInfo.vue';
+import GpuInfo from '@/components/sysinfo/GpuInfo.vue';
 import { ref, onMounted, nextTick, onUnmounted, watchEffect } from 'vue';
 import { useGlobalStore } from '@/store';
 
@@ -38,6 +39,7 @@ const loadTableData = ref({});
 const netTableData = ref([]);
 const diskTableData = ref([]);
 const processTableData = ref([]);
+const gpuTableData = ref([]);
 const diskInfo = ref('');
 
 const getCPUUsage = (cpuData) => {
@@ -87,6 +89,8 @@ const getRemoteInfo = async () => {
   diskTableData.value = globalStore.systemInfo.diskDetail;
   // process 表格
   processTableData.value = globalStore.systemInfo.processInfo;
+  // gpu 表格
+  gpuTableData.value = globalStore.systemInfo.gpuDetail;
 
   // pie 图表赋值
   chartsOption.value.cpuChart.data = getCPUUsage(cpuInfo.value).toFixed(2);
@@ -171,14 +175,15 @@ onUnmounted(() => {
     <el-col :span="8">
       <div class="grid-content ep-bg-purple">
         <el-card class="box-card">
-          <DiskInfo :option="diskTableData" />
+          <GpuInfo :option="gpuTableData" />
         </el-card>
       </div>
     </el-col>
     <el-col :span="8">
       <div class="grid-content ep-bg-purple">
         <el-card class="box-card">
-          <IOInfo :option="netTableData" />
+          <!-- <IOInfo :option="netTableData" /> -->
+          <DiskInfo :option="diskTableData" />
         </el-card>
       </div>
     </el-col>
