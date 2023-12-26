@@ -166,8 +166,9 @@ onMounted(() => {
 });
 
 function extractLastNumber(str) {
-  const match = str.match(/\s*(\S+)$/);
-  return match ? match[1] : ''; // 返回匹配到的数字，如果没有则返回空字符串
+  // 匹配以数字或字母开头，后面跟着零个或多个空格、数字或字母的字符串
+  const match = str.match(/\b([A-Za-z]*\d+\s*[A-Za-z]*)\b$/);
+  return match ? match[1].trim() : '';
 }
 
 const updateChartData = (newData: any[]) => {
