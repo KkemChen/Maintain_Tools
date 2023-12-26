@@ -61,6 +61,49 @@ onUnmounted(() => {
   }
   window.removeEventListener('resize', updateColumnWidth);
 });
+
+const rowClassName = ({ row, rowIndex }) => {
+  // 嵌入的convertToMega函数
+  const convertToMega = (str) => {
+    // 检查是否为"0"或以"0"开头的单位（如0M，0G）
+    if (str.trim() === '0' || /^0[MG]?$/i.test(str.trim())) {
+      return 0;
+    }
+
+    const matches = str.match(/(\d+(?:\.\d+)?)([MGT])/i);
+    if (!matches) return NaN;
+
+    const num = parseFloat(matches[1]);
+    const unit = matches[2].toUpperCase();
+
+    switch (unit) {
+      case 'T':
+        return num * 1024 * 1024;
+      case 'G':
+        return num * 1024;
+      case 'M':
+        return num;
+      default:
+        return NaN;
+    }
+  };
+
+  const usedM = convertToMega(row.used);
+  const sizeM = convertToMega(row.size);
+
+  // 用于调试
+
+  if (!isNaN(usedM) && !isNaN(sizeM)) {
+    const usedRatio = usedM / sizeM;
+
+    if (usedRatio > 0.8) {
+      return 'highlight-red';
+    } else if (usedRatio > 0.6) {
+      return 'highlight-yellow';
+    }
+  }
+  return '';
+};
 </script>
 
 <template>
@@ -71,6 +114,7 @@ onUnmounted(() => {
     label="auto"
     :cell-style="{ padding: '0px' }"
     id="Disk-Info"
+    :row-class-name="rowClassName"
   >
     <el-table-column prop="name" label="Disk" :width="ColumnWidth" />
     <el-table-column prop="mounted_on" label="MP" :width="ColumnWidth" />
@@ -80,8 +124,18 @@ onUnmounted(() => {
   </el-table>
 </template>
 
-<style scoped>
+<style>
 .el-table {
   padding: 0px 10px;
+}
+
+.highlight-green {
+  --el-table-tr-bg-color: #67c23a !important;
+}
+.highlight-yellow {
+  --el-table-tr-bg-color: #e6a23c !important;
+}
+.highlight-red {
+  --el-table-tr-bg-color: #f56c6c !important;
 }
 </style>
