@@ -98,12 +98,18 @@ const storeRemoteConfig = () => {
       if (currentActiveConntionId && globalStore.isConnected) {
         const oldRemoteConfig = globalStore.getLocalRemoteConfig(currentActiveConntionId);
         // 断开原有ssh连接
-        const disconnectedRes = JSON.parse(await globalStore.disconnectSsh(oldRemoteConfig.host, oldRemoteConfig.port));
-        ElMessage({
-          type: disconnectedRes.code === 0 ? 'success' : 'error',
-          message: disconnectedRes.message,
-          duration: 3000,
-        });
+        if(
+          oldRemoteConfig.host !== globalStore.remoteConfig.host || 
+          oldRemoteConfig.port !== globalStore.remoteConfig.port || 
+          oldRemoteConfig.user !== globalStore.remoteConfig.user 
+          ) {
+            const disconnectedRes = JSON.parse(await globalStore.disconnectSsh(oldRemoteConfig.host, oldRemoteConfig.port));
+            ElMessage({
+              type: disconnectedRes.code === 0 ? 'success' : 'error',
+              message: disconnectedRes.message,
+              duration: 3000,
+            });
+          }
       }
     }
   });
