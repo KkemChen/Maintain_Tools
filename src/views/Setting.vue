@@ -28,25 +28,15 @@ const streamPort = reactive({
   rtmp: 2935,
 });
 
-const form = reactive({
-  name: '',
-  region: '',
-  date1: '',
-  date2: '',
-  delivery: false,
-  type: [],
-  resource: '',
-  desc: '',
-});
-
 const onSubmit = () => {
   console.log('submit!');
 };
 </script>
 <template>
   <div class="container">
-    app path
-    <el-form :model="form" label-width="15rem" class="form">
+    <el-tag class="ml-2" type="success">App Path</el-tag>
+
+    <el-form label-width="15rem" class="form">
       <el-form-item label="ivauto_ivs_server">
         <el-input v-model="appPath.ivauto_ivs_server" />
       </el-form-item>
@@ -62,8 +52,10 @@ const onSubmit = () => {
       <el-form-item label="LB_intercom">
         <el-input v-model="appPath.LB_intercom" />
       </el-form-item>
-      <el-divider />
-      git commit hash path
+    </el-form>
+    <el-divider />
+    <el-form label-width="15rem" class="form">
+      <el-tag class="ml-2" type="success">Git Commit Hash Path</el-tag>
       <el-form-item label="ivauto_ivs_server">
         <el-input v-model="gitInfoPath.ivauto_ivs_server" />
       </el-form-item>
@@ -79,8 +71,10 @@ const onSubmit = () => {
       <el-form-item label="LB_intercom">
         <el-input v-model="gitInfoPath.model_zoo" />
       </el-form-item>
-      <el-divider />
-      stream port
+    </el-form>
+    <el-divider />
+    <el-form label-width="15rem" class="form">
+      <el-tag class="ml-2" type="success">Stream Port</el-tag>
       <el-form-item label="rtsp">
         <el-input v-model="streamPort.rtsp" />
       </el-form-item>
@@ -96,10 +90,15 @@ const onSubmit = () => {
 
 <style scoped>
 .container {
-  width: 100vh;
+  width: 100%;
 }
 
 .form {
-  width: 100%;
+  width: 90%;
+}
+
+.ml-2 {
+  margin-bottom: 12px;
+  margin-left: 3%;
 }
 </style>
