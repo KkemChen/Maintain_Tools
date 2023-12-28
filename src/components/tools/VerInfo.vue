@@ -50,3 +50,5 @@ onUnmounted(() => {
   window.removeEventListener('resize', adjustColumnWidths);
 });
 </script>
+
+<style scoped></style>
