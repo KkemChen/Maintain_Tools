@@ -28,7 +28,7 @@ pub fn create_app<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::App<R
             crate::ssh::ssh_api::exec_ssh_command,
             crate::ssh::ssh_api::disconnect_ssh,
             crate::api::local_sysinfo::cpu_info::get_cpu_info_local,
-            crate::api::get_sysinfo,
+            crate::api::remote_sysinfo::get_sysinfo,
             crate::api::tools_interface::check_stream::check_stream,
         ])
         .build(tauri::generate_context!())

@@ -1,5 +1,5 @@
 use super::ssh_manager::*;
-use crate::api::{start_fetch_sysinfo, stop_fetch_sysinfo};
+use crate::api::remote_sysinfo::{start_fetch_sysinfo, stop_fetch_sysinfo};
 use lazy_static::lazy_static;
 use log::*;
 use serde_json::json;
