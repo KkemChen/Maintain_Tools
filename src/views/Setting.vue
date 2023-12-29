@@ -1,25 +1,29 @@
 <script lang="ts" setup>
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
+import { useGlobalStore } from '@/store';
+import { ElMessage } from 'element-plus';
+
+const globalStore = useGlobalStore();
 
 const appPath = reactive({
-  ivauto_ivs_server: '/opt/ivauto_ivs_server/ivauto_ivs_server',
-  ivauto_quality_detection: '/opt/ivauto_ivs_server/ivauto_quality_detection',
-  ivauto_summary_server: '/opt/ivauto_ivs_server/ivauto_summary_server',
-  StreamServer: '/opt/StreamServer/StreamServer',
-  LB_intercom: '/opt/LB_intercom/LB_intercom',
+  ivauto_ivs_server: '',
+  ivauto_quality_detection: '',
+  ivauto_summary_server: '',
+  StreamServer: '',
+  LB_intercom: '',
 });
 
 const gitInfoPath = reactive({
-  ivauto_ivs_server: '/opt/ivauto_ivs_server/ivs_ver.txt',
-  ivauto_quality_detection: '/opt/ivauto_ivs_server/qd_ver.txt',
-  StreamServer: '/opt/StreamServer/git_commit_version.txt',
-  LB_intercom: '/opt/LB_intercom/git_commit_version.txt',
-  model_zoo: '/opt/ivauto_ivs_server/model_ver.txt',
+  ivauto_ivs_server: '',
+  ivauto_quality_detection: '',
+  StreamServer: '',
+  LB_intercom: '',
+  model_zoo: '',
 });
 
 const modelPath = reactive({
-  prison_rt: '/opt/ivauto_ivs_server/data/prison-rt',
-  coeff_prison: '/opt/ivauto_ivs_server/data/coeff-prison',
+  prison_rt: '',
+  coeff_prison: '',
 });
 
 const streamPort = reactive({
@@ -28,8 +32,21 @@ const streamPort = reactive({
   rtmp: 2935,
 });
 
+onMounted(() => {
+  Object.assign(appPath, globalStore.getLocalAppPath());
+  Object.assign(gitInfoPath, globalStore.getLocalGitInfoPath());
+  Object.assign(streamPort, globalStore.getLocalStreamPort());
+});
+
 const onSubmit = () => {
-  console.log('submit!');
+  // 更新全局状态和localStorage
+  globalStore.setLocalAppPath(appPath);
+  globalStore.setLocalGitInfoPath(gitInfoPath);
+  globalStore.setLocalStreamPort(streamPort);
+  ElMessage({
+    type: 'success',
+    message: '保存成功',
+  });
 };
 </script>
 <template>
@@ -84,6 +101,10 @@ const onSubmit = () => {
       <el-form-item label="rtmp">
         <el-input v-model="streamPort.rtmp" />
       </el-form-item>
+      <el-form-item class="saveButton">
+        <el-button type="primary" @click="onSubmit">Save</el-button>
+        <el-button>Cancel</el-button>
+      </el-form-item>
     </el-form>
   </div>
 </template>
@@ -100,5 +121,9 @@ const onSubmit = () => {
 .ml-2 {
   margin-bottom: 12px;
   margin-left: 3%;
+}
+
+.saveButton {
+  margin-top: 50px;
 }
 </style>

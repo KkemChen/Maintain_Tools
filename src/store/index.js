@@ -15,7 +15,7 @@ export const useGlobalStore = defineStore({
       isSpecialMode: false,
       remoteConfig: {
         host: '',
-        port: 2,
+        port: 22,
         user: 'root',
         password: ''
       },
@@ -29,7 +29,30 @@ export const useGlobalStore = defineStore({
         diskInfo: '',
         diskDetail: [],
         gpuDetail: []
-      }
+      },
+      appPath: {
+        ivauto_ivs_server: '/opt/ivauto_ivs_server/ivauto_ivs_server',
+        ivauto_quality_detection: '/opt/ivauto_ivs_server/ivauto_quality_detection',
+        ivauto_summary_server: '/opt/ivauto_ivs_server/ivauto_summary_server',
+        StreamServer: '/opt/StreamServer/StreamServer',
+        LB_intercom: '/opt/LB_intercom/LB_intercom',
+      },
+      gitInfoPath: {
+        ivauto_ivs_server: '/opt/ivauto_ivs_server/ivs_ver.txt',
+        ivauto_quality_detection: '/opt/ivauto_ivs_server/qd_ver.txt',
+        StreamServer: '/opt/StreamServer/git_commit_version.txt',
+        LB_intercom: '/opt/LB_intercom/git_commit_version.txt',
+        model_zoo: '/opt/ivauto_ivs_server/model_ver.txt',
+      },
+      modelPath: {
+        prison_rt: '/opt/ivauto_ivs_server/data/prison-rt',
+        coeff_prison: '/opt/ivauto_ivs_server/data/coeff-prison',
+      },
+      streamPort: {
+        rtsp: 554,
+        http: 8096,
+        rtmp: 2935,
+      },
     }
   },
   getters: {},
@@ -41,11 +64,25 @@ export const useGlobalStore = defineStore({
       if (!localStorage.getItem(IS_ACTIVED)) {
         localStorage.setItem(IS_ACTIVED, '');
       }
+      this.setLocalAppPath(this.appPath);
+      this.setLocalGitInfoPath(this.gitInfoPath);
+      this.setLocalStreamPort(this.streamPort);
+
     },
     addLocalRemoteConfig(key, value) {
       let remoteConfigCache = this.getRemoteConfigCache();
       remoteConfigCache[key] = value;
       this.setLocalRemoteConfig(remoteConfigCache);
+    },
+
+    getLocalAppPath() {
+      return JSON.parse(localStorage.getItem('appPath') || '{}');
+    },
+    getLocalGitInfoPath() {
+      return JSON.parse(localStorage.getItem('gitInfoPath') || '{}');
+    },
+    getLocalStreamPort() {
+      return JSON.parse(localStorage.getItem('streamPort') || '{}');
     },
     getActiveKey() {
       return IS_ACTIVED;
@@ -64,6 +101,8 @@ export const useGlobalStore = defineStore({
         const res = await fetchRemoteAllInfo(requestUrl);
         this.systemInfo.cpuInfo = res.cpu_info;
         this.systemInfo.cpuDetail = res.cpu_detail;
+        console.log(res.cpu_info)
+        console.log(res.cpu_detail)
         this.systemInfo.memoryInfo = res.mem_info;
         this.systemInfo.loadInfo = res.load_info;
         this.systemInfo.networksInfo = res.net_info;
@@ -102,6 +141,15 @@ export const useGlobalStore = defineStore({
         loadInfo,
         networksInfo
       }
+    },
+    setLocalAppPath(value) {
+      localStorage.setItem('appPath', JSON.stringify(value));
+    },
+    setLocalGitInfoPath(value) {
+      localStorage.setItem('gitInfoPath', JSON.stringify(value));
+    },
+    setLocalStreamPort(value) {
+      localStorage.setItem('streamPort', JSON.stringify(value));
     },
     async disconnectSsh(host, port) {
       const res = await disconnectSsh(host, port);

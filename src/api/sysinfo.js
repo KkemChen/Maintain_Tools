@@ -15,6 +15,7 @@ const fetchRemoteAllInfo = async (remoteHost) => {
   try {
     const res = await invoke('get_sysinfo', { host: remoteHost });
     const json = JSON.parse(res);
+    console.log(json);
     return json.data;
   } catch (error) {
     console.error('Error fetching all info:', error);
