@@ -19,11 +19,8 @@ pub fn get_cpu_info_l(host: &str) -> Result<CpuInfo, String> {
     let section_re = Regex::new(r"top -").unwrap();
     let sections: Vec<_> = section_re.split(&output).collect();
 
-    for (i, section) in sections.iter().enumerate() {
-        println!("Section {}: {:?}", i, section);
-    }
     let last_output = sections.last().ok_or("No CPU data found in the output")?;
-    println!("Last section chosen: {:?}", last_output);
+
     let cpu_re =
         Regex::new(r"%Cpu\(s\):\s*(\d+\.\d+)\s*us,\s*(\d+\.\d+)\s*sy,\s*.*,\s*(\d+\.\d+)\s*id,.*")
             .map_err(|err| err.to_string())?;
