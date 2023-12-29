@@ -6,6 +6,11 @@ use log::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tokio::task;
+#[derive(Serialize, Deserialize, Debug)]
+struct Md5Info {
+    date: String,
+    md5: String,
+}
 
 async fn get_md5_l(host: &str, path: &str) -> Result<String, String> {
     let host_clone = host.to_string();
@@ -17,28 +22,40 @@ async fn get_md5_l(host: &str, path: &str) -> Result<String, String> {
     }
 }
 
+async fn get_date_l(host: &str, path: &str) -> Result<String, String> {
+    let host_clone = host.to_string();
+    let command = format!(
+        "date -d @$(stat -c %Y {}) \"+%Y-%m-%d %H:%M:%S\" | tr -d '\n'",
+        path
+    );
+
+    match task::spawn_blocking(move || exec_ssh_command(host_clone.as_str(), &command)).await {
+        Ok(result) => result,
+        Err(join_error) => Err(join_error.to_string()),
+    }
+}
+
 #[tauri::command]
 pub async fn get_md5(host: &str, path: &str) -> Result<String, String> {
-    let output = get_md5_l(host, path).await;
-    match output {
-        Ok(data) => {
-            let response = Response {
-                code: 0,
-                message: "success".to_string(),
-                data: Some(data),
-            };
-            serde_json::to_string(&response).map_err(|e| e.to_string())
-        }
-        Err(err) => {
-            let response = Response::<String> {
-                code: -1,
-                message: err.clone(),
-                data: None,
-            };
-            error!("get_md5 failed, err: {}", err);
-            serde_json::to_string(&response).map_err(|e| e.to_string())
-        }
+    let mut md5_info = Md5Info {
+        date: String::new(), // 使用默认值初始化
+        md5: String::new(),  // 使用默认值初始化
+    };
+
+    if let Ok(md5) = get_md5_l(host, path).await {
+        md5_info.md5 = md5;
     }
+
+    if let Ok(date) = get_date_l(host, path).await {
+        md5_info.date = date;
+    }
+
+    let response = Response {
+        code: 0,
+        message: "success".to_string(),
+        data: Some(md5_info),
+    };
+    serde_json::to_string(&response).map_err(|e| e.to_string())
 }
 
 #[cfg(test)]

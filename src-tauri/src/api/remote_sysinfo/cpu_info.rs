@@ -13,7 +13,7 @@ pub struct CpuInfo {
 
 //CPU总体信息
 pub fn get_cpu_info_l(host: &str) -> Result<CpuInfo, String> {
-    let output = exec_ssh_command(host, "top -b -n 3").map_err(|e| e.to_string())?;
+    let output = exec_ssh_command(host, "top -b -n 2").map_err(|e| e.to_string())?;
 
     // 使用时间戳作为分隔符来分割输出
     let section_re = Regex::new(r"top -").unwrap();

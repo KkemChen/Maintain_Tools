@@ -2,8 +2,8 @@
 import { reactive, computed, ref, watch, onMounted } from 'vue';
 import { Check, Select, MoreFilled, CloseBold, Close } from '@element-plus/icons-vue';
 import { Icon } from '@iconify/vue';
-import { useSysinfo } from '@/api/sysinfo';
-const { checkStream } = useSysinfo();
+import { useTools } from '@/api/tools';
+const { checkStream } = useTools();
 import { useGlobalStore } from '@/store';
 const globalStore = useGlobalStore();
 

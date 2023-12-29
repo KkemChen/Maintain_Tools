@@ -42,6 +42,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Search } from '@element-plus/icons-vue';
+import { useTools } from '@/api/tools';
+const { get_md5 } = useTools();
+import { useGlobalStore } from '@/store';
+const globalStore = useGlobalStore();
+
 const input1 = ref('');
 const input2 = ref('');
 const input3 = ref('');

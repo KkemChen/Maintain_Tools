@@ -8,7 +8,7 @@ import Md5 from '@/components/tools/Md5.vue';
 const activeName = ref('first');
 
 const handleClick = (tab: TabsPaneContext, event: Event) => {
-  console.log(tab, event);
+  // console.log(tab, event);
 };
 </script>
 

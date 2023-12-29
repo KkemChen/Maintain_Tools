@@ -101,8 +101,6 @@ export const useGlobalStore = defineStore({
         const res = await fetchRemoteAllInfo(requestUrl);
         this.systemInfo.cpuInfo = res.cpu_info;
         this.systemInfo.cpuDetail = res.cpu_detail;
-        console.log(res.cpu_info)
-        console.log(res.cpu_detail)
         this.systemInfo.memoryInfo = res.mem_info;
         this.systemInfo.loadInfo = res.load_info;
         this.systemInfo.networksInfo = res.net_info;

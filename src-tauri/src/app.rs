@@ -30,6 +30,8 @@ pub fn create_app<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::App<R
             crate::api::local_sysinfo::cpu_info::get_cpu_info_local,
             crate::api::remote_sysinfo::get_sysinfo,
             crate::api::tools_interface::check_stream::check_stream,
+            crate::api::tools_interface::get_ver_info::get_ver_info,
+            crate::api::tools_interface::get_md5::get_md5,
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application")
