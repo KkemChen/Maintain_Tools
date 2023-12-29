@@ -47,8 +47,6 @@ const getMd5 = async () => {
   for (const [name, path] of Object.entries(paths)) {
     await get_md5(`${globalStore.remoteConfig.host}:${globalStore.remoteConfig.port}`, path)
       .then((json) => {
-        console.log(json);
-
         const newItem: TableModelDataItem = {
           name: name,
           date: json.data.date,
