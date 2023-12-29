@@ -8,27 +8,37 @@ use serde::{Deserialize, Serialize};
 pub struct CpuInfo {
     user_usage: f32,
     sys_usage: f32,
-    usage: f32,
+    pub usage: f32,
 }
 
 //CPU总体信息
 pub fn get_cpu_info_l(host: &str) -> Result<CpuInfo, String> {
-    let output = exec_ssh_command(host, "top -b -n 1").map_err(|e| e.to_string())?;
+    let output = exec_ssh_command(host, "top -b -n 3").map_err(|e| e.to_string())?;
 
-    // 匹配 top 命令输出中的 CPU 使用率行，这里的正则表达式可能需要根据实际输出进行调整
+    // 使用时间戳作为分隔符来分割输出
+    let section_re = Regex::new(r"top -").unwrap();
+    let sections: Vec<_> = section_re.split(&output).collect();
+
+    for (i, section) in sections.iter().enumerate() {
+        println!("Section {}: {:?}", i, section);
+    }
+    let last_output = sections.last().ok_or("No CPU data found in the output")?;
+    println!("Last section chosen: {:?}", last_output);
     let cpu_re =
-        Regex::new(r"%Cpu\(s\):.*?(\d+\.\d+) us.*?(\d+\.\d+) sy.*?(\d+\.\d+) id.*?").unwrap();
-    let cpu_caps = cpu_re.captures(&output).ok_or("No CPU data found")?;
+        Regex::new(r"%Cpu\(s\):\s*(\d+\.\d+)\s*us,\s*(\d+\.\d+)\s*sy,\s*.*,\s*(\d+\.\d+)\s*id,.*")
+            .map_err(|err| err.to_string())?;
+
+    // 应用正则表达式到最后一次迭代的输出
+    let cpu_caps = cpu_re.captures(last_output).ok_or("No CPU data found")?;
     let user_usage = cpu_caps[1].parse::<f32>().map_err(|e| e.to_string())? / 100.0;
     let sys_usage = cpu_caps[2].parse::<f32>().map_err(|e| e.to_string())? / 100.0;
-    // 计算空闲时间，并从 1 减去得到总的 CPU 使用率
     let idle = cpu_caps[3].parse::<f32>().map_err(|e| e.to_string())? / 100.0;
     let total_usage = user_usage + sys_usage;
 
     Ok(CpuInfo {
         user_usage: user_usage,
         sys_usage: sys_usage,
-        usage: total_usage, // 使用 total_usage 代替之前的 user_usage + sys_usage
+        usage: total_usage,
     })
 }
 
